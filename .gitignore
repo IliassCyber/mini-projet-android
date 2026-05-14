@@ -1,0 +1,36 @@
+# Secrets et configuration locale
+.env
+*.env
+.env.local
+.env.*.local
+
+# Sorties générées à l'exécution
+output/
+results/
+
+# Bytecode Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# APKs de test personnels (les APKs du projet restent dans apks/)
+*.apk
+!apks/dvba.apk
+!apks/app-debug.apk
+
+# IDE
+.vscode/settings.json
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+mitmdump.log
+
+# Fichiers temporaires mitmproxy
+captured_token.txt
+flow_*
