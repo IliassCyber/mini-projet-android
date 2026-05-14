@@ -1,0 +1,61 @@
+package com.google.android.gms.search;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+import com.google.android.gms.common.internal.safeparcel.zza;
+import com.google.android.gms.common.internal.safeparcel.zzb;
+
+/* JADX INFO: loaded from: classes.dex */
+public class zza implements Parcelable.Creator<GoogleNowAuthState> {
+    static void zza(GoogleNowAuthState googleNowAuthState, Parcel parcel, int i) {
+        int iZzac = zzb.zzac(parcel);
+        zzb.zza(parcel, 1, googleNowAuthState.getAuthCode(), false);
+        zzb.zzc(parcel, 1000, googleNowAuthState.zzCY);
+        zzb.zza(parcel, 2, googleNowAuthState.getAccessToken(), false);
+        zzb.zza(parcel, 3, googleNowAuthState.getNextAllowedTimeMillis());
+        zzb.zzH(parcel, iZzac);
+    }
+
+    /* JADX WARN: Unreachable blocks removed: 1, instructions: 1 */
+    @Override // android.os.Parcelable.Creator
+    /* JADX INFO: renamed from: zzfX, reason: merged with bridge method [inline-methods] */
+    public GoogleNowAuthState createFromParcel(Parcel parcel) {
+        int iZzab = com.google.android.gms.common.internal.safeparcel.zza.zzab(parcel);
+        String strZzo = null;
+        String strZzo2 = null;
+        long jZzi = 0;
+        int iZzg = 0;
+        while (parcel.dataPosition() < iZzab) {
+            int iZzaa = com.google.android.gms.common.internal.safeparcel.zza.zzaa(parcel);
+            int iZzbA = com.google.android.gms.common.internal.safeparcel.zza.zzbA(iZzaa);
+            if (iZzbA != 1000) {
+                switch (iZzbA) {
+                    case 1:
+                        strZzo = com.google.android.gms.common.internal.safeparcel.zza.zzo(parcel, iZzaa);
+                        break;
+                    case 2:
+                        strZzo2 = com.google.android.gms.common.internal.safeparcel.zza.zzo(parcel, iZzaa);
+                        break;
+                    case 3:
+                        jZzi = com.google.android.gms.common.internal.safeparcel.zza.zzi(parcel, iZzaa);
+                        break;
+                    default:
+                        com.google.android.gms.common.internal.safeparcel.zza.zzb(parcel, iZzaa);
+                        break;
+                }
+            } else {
+                iZzg = com.google.android.gms.common.internal.safeparcel.zza.zzg(parcel, iZzaa);
+            }
+        }
+        if (parcel.dataPosition() == iZzab) {
+            return new GoogleNowAuthState(iZzg, strZzo, strZzo2, jZzi);
+        }
+        throw new zza.C0036zza("Overread allowed size end=" + iZzab, parcel);
+    }
+
+    @Override // android.os.Parcelable.Creator
+    /* JADX INFO: renamed from: zziN, reason: merged with bridge method [inline-methods] */
+    public GoogleNowAuthState[] newArray(int i) {
+        return new GoogleNowAuthState[i];
+    }
+}

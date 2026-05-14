@@ -1,0 +1,352 @@
+{
+  "apk": "dvba",
+  "static": {
+    "auth_type": "JWT",
+    "findings": [
+      {
+        "id": "LOG_CREDENTIALS",
+        "severity": "ELEVE",
+        "type": "Identifiants dans les logs",
+        "file": "sources\\a\\a\\a\\a\\a.java",
+        "line": 576,
+        "detail": "Log.e(str, \"Failed to check device credential. Parent handler not found.\")",
+        "description": "Donnees sensibles enregistrees dans les logs Android"
+      },
+      {
+        "id": "LOG_CREDENTIALS",
+        "severity": "ELEVE",
+        "type": "Identifiants dans les logs",
+        "file": "sources\\a\\a\\a\\a\\a.java",
+        "line": 585,
+        "detail": "Log.e(str, \"Failed to check device credential. KeyguardManager not found.\")",
+        "description": "Donnees sensibles enregistrees dans les logs Android"
+      },
+      {
+        "id": "LOG_CREDENTIALS",
+        "severity": "ELEVE",
+        "type": "Identifiants dans les logs",
+        "file": "sources\\a\\a\\a\\a\\a.java",
+        "line": 592,
+        "detail": "Log.e(str, \"Failed to check device credential. KeyguardManager was null.\")",
+        "description": "Donnees sensibles enregistrees dans les logs Android"
+      },
+      {
+        "id": "LOG_CREDENTIALS",
+        "severity": "ELEVE",
+        "type": "Identifiants dans les logs",
+        "file": "sources\\a\\a\\a\\a\\a.java",
+        "line": 605,
+        "detail": "Log.e(str, \"Failed to check device credential. Got null intent from Keyguard.\")",
+        "description": "Donnees sensibles enregistrees dans les logs Android"
+      },
+      {
+        "id": "HTTP_CLEARTEXT",
+        "severity": "MOYEN",
+        "type": "Communication en clair (HTTP)",
+        "file": "sources\\a\\a\\a\\a\\a.java",
+        "line": 487,
+        "detail": "http://s",
+        "description": "URL HTTP non chiffree vers un serveur externe"
+      },
+      {
+        "id": "LOG_CREDENTIALS",
+        "severity": "ELEVE",
+        "type": "Identifiants dans les logs",
+        "file": "sources\\androidx\\biometric\\DeviceCredentialHandlerActivity.java",
+        "line": 48,
+        "detail": "Log.e(\"DeviceCredentialHandler\", \"onCreate: Executor and/or callback was null!\")",
+        "description": "Donnees sensibles enregistrees dans les logs Android"
+      },
+      {
+        "id": "LOG_CREDENTIALS",
+        "severity": "ELEVE",
+        "type": "Identifiants dans les logs",
+        "file": "sources\\androidx\\biometric\\DeviceCredentialHandlerActivity.java",
+        "line": 75,
+        "detail": "Log.e(\"DeviceCredentialHandler\", \"onActivityResult: Bridge or callback was null!\")",
+        "description": "Donnees sensibles enregistrees dans les logs Android"
+      },
+      {
+        "id": "HARDCODED_SECRET",
+        "severity": "CRITIQUE",
+        "type": "Secret code en dur",
+        "file": "sources\\b\\i\\m\\v\\b.java",
+        "line": 402,
+        "detail": "password: \");\n        sb.append(this.f864a.isPassword());\n        sb.append(\"",
+        "description": "Mot de passe ou cle secrete code en dur"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\c\\b\\a\\h.java",
+        "line": 21,
+        "detail": "getSharedPreferences(\"jwt\", 0).getString(\"accesstoken",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\c\\b\\a\\l.java",
+        "line": 21,
+        "detail": "getSharedPreferences(\"jwt\", 0).getString(\"accesstoken",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\c\\b\\a\\t.java",
+        "line": 21,
+        "detail": "getSharedPreferences(\"jwt\", 0).getString(\"accesstoken",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\c\\b\\a\\w.java",
+        "line": 21,
+        "detail": "getSharedPreferences(\"jwt\", 0).getString(\"accesstoken",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "LOG_CREDENTIALS",
+        "severity": "ELEVE",
+        "type": "Identifiants dans les logs",
+        "file": "sources\\c\\c\\a\\a\\f\\c\\a1.java",
+        "line": 46,
+        "detail": "Log.d(\"GetTokenResponse\", \"Failed to read GetTokenResponse from JSONObject\")",
+        "description": "Donnees sensibles enregistrees dans les logs Android"
+      },
+      {
+        "id": "LOG_CREDENTIALS",
+        "severity": "ELEVE",
+        "type": "Identifiants dans les logs",
+        "file": "sources\\c\\c\\a\\a\\f\\c\\a1.java",
+        "line": 61,
+        "detail": "Log.d(\"GetTokenResponse\", \"Failed to convert GetTokenResponse to JSON\")",
+        "description": "Donnees sensibles enregistrees dans les logs Android"
+      },
+      {
+        "id": "HARDCODED_SECRET",
+        "severity": "CRITIQUE",
+        "type": "Secret code en dur",
+        "file": "sources\\c\\c\\a\\a\\f\\c\\n1.java",
+        "line": 69,
+        "detail": "secret=\");\n            sb.append(this.i);\n            sb.append(\"",
+        "description": "Mot de passe ou cle secrete code en dur"
+      },
+      {
+        "id": "LOG_CREDENTIALS",
+        "severity": "ELEVE",
+        "type": "Identifiants dans les logs",
+        "file": "sources\\c\\c\\b\\h\\d0\\i.java",
+        "line": 18,
+        "detail": "Log.e(aVar.f1410a, aVar.a(\"Error parsing token claims\", new Object[0])",
+        "description": "Donnees sensibles enregistrees dans les logs Android"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\c\\c\\b\\h\\d0\\j.java",
+        "line": 27,
+        "detail": "getSharedPreferences(\"com.google.firebase.auth",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "LOG_CREDENTIALS",
+        "severity": "ELEVE",
+        "type": "Identifiants dans les logs",
+        "file": "sources\\c\\c\\b\\h\\d0\\k.java",
+        "line": 63,
+        "detail": "Log.e(aVar2.f1410a, aVar2.a(\"Unable to decode token\", new Object[0])",
+        "description": "Donnees sensibles enregistrees dans les logs Android"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\c\\c\\b\\h\\d0\\n.java",
+        "line": 20,
+        "detail": "SharedPreferences.Editor editorEdit = context.getSharedPreferences(\"com.google.firebase.auth",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\c\\c\\b\\h\\d0\\n.java",
+        "line": 28,
+        "detail": "SharedPreferences.Editor editorEdit = context.getSharedPreferences(\"com.google.firebase.auth",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\c\\c\\b\\h\\d0\\p.java",
+        "line": 31,
+        "detail": "getSharedPreferences(String.format(\"com.google.firebase.auth",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\com\\app\\damnvulnerablebank\\AddBeneficiary.java",
+        "line": 67,
+        "detail": "getSharedPreferences(\"jwt\", 0).getString(\"accesstoken",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\com\\app\\damnvulnerablebank\\ApproveBeneficiary.java",
+        "line": 70,
+        "detail": "getSharedPreferences(\"jwt\", 0).getString(\"accesstoken",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "LOG_CREDENTIALS",
+        "severity": "ELEVE",
+        "type": "Identifiants dans les logs",
+        "file": "sources\\com\\app\\damnvulnerablebank\\BankLogin.java",
+        "line": 43,
+        "detail": "Log.d(\"accesstoken\", string)",
+        "description": "Donnees sensibles enregistrees dans les logs Android"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\com\\app\\damnvulnerablebank\\BankLogin.java",
+        "line": 42,
+        "detail": "SharedPreferences sharedPreferences = BankLogin.this.getSharedPreferences(\"jwt",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\com\\app\\damnvulnerablebank\\BankLogin.java",
+        "line": 44,
+        "detail": "sharedPreferences.edit().putString(\"accesstoken",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\com\\app\\damnvulnerablebank\\Dashboard.java",
+        "line": 44,
+        "detail": "SharedPreferences.Editor editorEdit = getApplicationContext().getSharedPreferences(\"jwt",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\com\\app\\damnvulnerablebank\\Myprofile.java",
+        "line": 108,
+        "detail": "getSharedPreferences(\"jwt\", 0).getString(\"accesstoken",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\com\\app\\damnvulnerablebank\\ResetPassword.java",
+        "line": 29,
+        "detail": "getSharedPreferences(\"jwt",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\com\\app\\damnvulnerablebank\\ResetPassword.java",
+        "line": 51,
+        "detail": "getSharedPreferences(\"jwt\", 0).getString(\"accesstoken",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\com\\app\\damnvulnerablebank\\SendMoney.java",
+        "line": 38,
+        "detail": "getSharedPreferences(\"jwt\", 0).getString(\"accesstoken",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      },
+      {
+        "id": "SHARED_PREFS_TOKEN",
+        "severity": "ELEVE",
+        "type": "Token dans SharedPreferences",
+        "file": "sources\\com\\app\\damnvulnerablebank\\ViewBalance.java",
+        "line": 81,
+        "detail": "getSharedPreferences(\"jwt\", 0).getString(\"accesstoken",
+        "description": "Token d'authentification stocke en clair dans SharedPreferences"
+      }
+    ],
+    "score": 0,
+    "files_scanned": 1165
+  },
+  "dynamic": {
+    "mode": "API_DIRECT",
+    "logout_effective": false,
+    "token_lifetime_minutes": null,
+    "rotation_enforced": null,
+    "findings": [
+      {
+        "severity": "CRITIQUE",
+        "type": "JWT sans expiration",
+        "detail": "Le token JWT ne contient pas de champ 'exp' — il ne expire jamais"
+      },
+      {
+        "severity": "CRITIQUE",
+        "type": "Token rejou apres deconnexion",
+        "detail": "Le serveur repond HTTP 200 sur /api/user/profile apres logout — invalidation cote serveur absente"
+      }
+    ]
+  },
+  "ai": {
+    "checklist": [
+      "- [ ] [MASVS-AUTH-1] Vérifier que les tokens JWT contiennent un champ 'exp' valide et que la durée de vie est limitée à une valeur raisonnable (ex. 15 à 60 minutes pour un access token)",
+      "- [ ] [MASVS-AUTH-1] Vérifier que le serveur invalide effectivement le token côté serveur lors de la déconnexion (blacklist ou révocation de session)",
+      "- [ ] [MASVS-AUTH-2] Vérifier que les tokens JWT ne peuvent pas être rejoués après une déconnexion explicite de l'utilisateur",
+      "- [ ] [MASVS-AUTH-2] Vérifier que la rotation des tokens (refresh token) est implémentée et que les anciens tokens sont invalidés après rotation",
+      "- [ ] [MASVS-AUTH-3] Vérifier que l'algorithme de signature JWT utilisé est robuste (RS256 ou ES256) et que l'algorithme 'none' est explicitement rejeté par le serveur",
+      "- [ ] [MASVS-STORAGE-1] Vérifier que les tokens JWT (accesstoken) ne sont pas stockés en clair dans les SharedPreferences non chiffrées (fichiers c\\b\\a\\h.java, c\\b\\a\\l.java, c\\b\\a\\t.java, c\\b\\a\\w.java, BankLogin.java, etc.)",
+      "- [ ] [MASVS-STORAGE-1] Vérifier que les tokens sont stockés dans Android Keystore ou via EncryptedSharedPreferences (Jetpack Security) plutôt que dans des SharedPreferences en mode MODE_PRIVATE non chiffré",
+      "- [ ] [MASVS-STORAGE-2] Vérifier qu'aucun secret cryptographique, mot de passe ou valeur sensible n'est codé en dur dans le code source (fichiers b\\i\\m\\v\\b.java ligne 402 et c\\c\\a\\a\\f\\c\\n1.java ligne 69)",
+      "- [ ] [MASVS-STORAGE-3] Vérifier qu'aucun token, identifiant ou information d'authentification n'est écrit dans les logs applicatifs (Log.d(\"accesstoken\", string) dans BankLogin.java ligne 43 et autres occurrences)",
+      "- [ ] [MASVS-NETWORK-1] Vérifier que toutes les communications réseau utilisent exclusivement HTTPS/TLS et qu'aucune URL en HTTP clair n'est présente dans le code (URL http://s détectée dans a\\a\\a\\a\\a.java ligne 487)",
+      "- [ ] [MASVS-NETWORK-1] Vérifier que la configuration réseau Android (network_security_config.xml) interdit explicitement le trafic en clair (cleartextTrafficPermitted=\"false\")",
+      "- [ ] [MASVS-CRYPTO-1] Vérifier que le secret utilisé pour la signature JWT (détecté en dur dans n1.java) est généré aléatoirement, d'une longueur suffisante (≥ 256 bits), et stocké de manière sécurisée côté serveur",
+      "- [ ] [MASVS-AUTH-1] Vérifier que les claims JWT (sub, iss, aud) sont correctement validés côté serveur à chaque requête et que les erreurs de parsing de claims sont gérées sans exposer d'informations sensibles dans les logs",
+      "- [ ] [MASVS-STORAGE-2] Vérifier que les tokens Firebase (com.google.firebase.auth) stockés dans les SharedPreferences sont également protégés par chiffrement et soumis aux mêmes règles de cycle de vie que les tokens JWT applicatifs"
+    ],
+    "acceptance_criteria": [
+      "Le système DOIT émettre des tokens JWT contenant un champ 'exp' avec une durée de validité maximale de 60 minutes afin d'éviter l'utilisation indéfinie d'un token compromis.",
+      "Le système NE DOIT PAS retourner une réponse HTTP 200 sur un endpoint authentifié après que l'utilisateur s'est déconnecté, afin de garantir l'invalidation effective des sessions côté serveur.",
+      "Le système DOIT stocker les tokens JWT exclusivement dans EncryptedSharedPreferences ou via Android Keystore afin de protéger les tokens contre toute extraction depuis un appareil rooté ou une sauvegarde non chiffrée.",
+      "Le système NE DOIT PAS inscrire de tokens, de mots de passe ou de toute valeur d'authentification dans les journaux applicatifs (Logcat) afin d'empêcher la fuite de credentials via les logs accessibles à d'autres applications sur un appareil déboggué.",
+      "Le système NE DOIT PAS contenir de secrets cryptographiques ou de mots de passe codés en dur dans le bytecode de l'application afin d'éviter leur extraction par rétro-ingénierie statique.",
+      "Le système DOIT implémenter une rotation des refresh tokens à usage unique (one-time use) afin de détecter et bloquer toute tentative de rejeu d'un token volé.",
+      "Le système DOIT utiliser exclusivement des connexions HTTPS avec TLS 1.2 minimum pour toutes les communications réseau afin d'empêcher l'interception des tokens JWT en transit.",
+      "Le système DOIT valider l'ensemble des claims JWT (exp, iss, aud, sub) côté serveur à chaque requête authentifiée afin de rejeter tout token malformé, expiré ou émis par une source non autorisée.",
+      "Le système NE DOIT PAS utiliser l'algorithme de signature JWT 'none' et doit rejeter explicitement toute tentative de validation d'un token signé avec cet algorithme, afin de prévenir les attaques de contournement de signature."
+    ],
+    "summary": "L'application Android auditée est une application bancaire mobile (DamnVulnerableBank) utilisant JSON Web Tokens (JWT) pour gérer l'authentification de ses utilisateurs. L'analyse combinée statique et dynamique a mis en évidence des vulnérabilités de niveau critique qui compromettent directement la sécurité des sessions utilisateurs : les tokens JWT émis ne contiennent aucun champ d'expiration ('exp'), les rendant valides indéfiniment, et le serveur ne procède à aucune invalidation côté serveur lors de la déconnexion, permettant ainsi le rejeu de tokens après logout confirmé par une réponse HTTP 200. Par ailleurs, deux secrets cryptographiques distincts ont été retrouvés codés en dur dans le bytecode de l'application, rendant leur extraction triviale par rétro-ingénierie, et l'ensemble des tokens d'accès sont stockés en clair dans des SharedPreferences non chiffrées, exposant les credentials à toute application malveillante disposant d'un accès root ou à une extraction par sauvegarde ADB. Le niveau de risque global de l'application est évalué comme critique, avec un score particulièrement alarmant sur le domaine STORAGE (0/10) et AUTH (6/10), ce qui signifie qu'un attaquant ayant intercepté ou extrait un token peut accéder durablement aux comptes bancaires des utilisateurs sans aucune contrainte temporelle ni détection possible. Les trois recommandations prioritaires sont les suivantes : (1) corriger immédiatement la gestion du cycle de vie des tokens JWT en ajoutant un champ 'exp' court et en implémentant une liste de révocation côté serveur ; (2) migrer le stockage des tokens vers EncryptedSharedPreferences ou Android Keystore afin de protéger les credentials au repos ; (3) supprimer l'ensemble des secrets codés en dur du code source et les remplacer par des mécanismes de provisionnement sécurisé côté serveur.",
+    "domain_scores": {
+      "AUTH": 6,
+      "STORAGE": 0,
+      "NETWORK": 9,
+      "CRYPTO": 10
+    }
+  }
+}

@@ -1,0 +1,253 @@
+package com.google.android.gms.fitness.data;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
+import com.google.android.gms.common.internal.safeparcel.SafeParcelable;
+import com.google.android.gms.common.internal.zzu;
+
+/* JADX INFO: loaded from: classes.dex */
+public class DataSource implements SafeParcelable {
+    public static final Parcelable.Creator<DataSource> CREATOR = new zzf();
+    public static final String EXTRA_DATA_SOURCE = "vnd.google.fitness.data_source";
+    public static final int TYPE_DERIVED = 1;
+    public static final int TYPE_RAW = 0;
+    private final String mName;
+    private final int zzCY;
+    private final int zzSq;
+    private final DataType zzajF;
+    private final Device zzakd;
+    private final Application zzake;
+    private final String zzakf;
+    private final String zzakg;
+
+    public static final class Builder {
+        private String mName;
+        private DataType zzajF;
+        private Device zzakd;
+        private Application zzake;
+        private int zzSq = -1;
+        private String zzakf = "";
+
+        public DataSource build() {
+            zzu.zza(this.zzajF != null, "Must set data type");
+            zzu.zza(this.zzSq >= 0, "Must set data source type");
+            return new DataSource(this);
+        }
+
+        public Builder setAppPackageName(Context context) {
+            return setAppPackageName(context.getPackageName());
+        }
+
+        public Builder setAppPackageName(String str) {
+            this.zzake = Application.zzcG(str);
+            return this;
+        }
+
+        public Builder setDataType(DataType dataType) {
+            this.zzajF = dataType;
+            return this;
+        }
+
+        public Builder setDevice(Device device) {
+            this.zzakd = device;
+            return this;
+        }
+
+        public Builder setName(String str) {
+            this.mName = str;
+            return this;
+        }
+
+        public Builder setStreamName(String str) {
+            zzu.zzb(str != null, "Must specify a valid stream name");
+            this.zzakf = str;
+            return this;
+        }
+
+        public Builder setType(int i) {
+            this.zzSq = i;
+            return this;
+        }
+    }
+
+    DataSource(int i, DataType dataType, String str, int i2, Device device, Application application, String str2) {
+        this.zzCY = i;
+        this.zzajF = dataType;
+        this.zzSq = i2;
+        this.mName = str;
+        this.zzakd = device;
+        this.zzake = application;
+        this.zzakf = str2;
+        this.zzakg = zzqC();
+    }
+
+    private DataSource(Builder builder) {
+        this.zzCY = 3;
+        this.zzajF = builder.zzajF;
+        this.zzSq = builder.zzSq;
+        this.mName = builder.mName;
+        this.zzakd = builder.zzakd;
+        this.zzake = builder.zzake;
+        this.zzakf = builder.zzakf;
+        this.zzakg = zzqC();
+    }
+
+    public static DataSource extract(Intent intent) {
+        if (intent == null) {
+            return null;
+        }
+        return (DataSource) com.google.android.gms.common.internal.safeparcel.zzc.zza(intent, EXTRA_DATA_SOURCE, CREATOR);
+    }
+
+    private String getTypeString() {
+        switch (this.zzSq) {
+            case 0:
+                return "raw";
+            case 1:
+                return "derived";
+            default:
+                throw new IllegalArgumentException("invalid type value");
+        }
+    }
+
+    private boolean zza(DataSource dataSource) {
+        return this.zzakg.equals(dataSource.zzakg);
+    }
+
+    private String zzqC() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getTypeString());
+        sb.append(":");
+        sb.append(this.zzajF.getName());
+        if (this.zzake != null) {
+            sb.append(":");
+            sb.append(this.zzake.getPackageName());
+        }
+        if (this.zzakd != null) {
+            sb.append(":");
+            sb.append(this.zzakd.getStreamIdentifier());
+        }
+        if (this.zzakf != null) {
+            sb.append(":");
+            sb.append(this.zzakf);
+        }
+        return sb.toString();
+    }
+
+    @Override // android.os.Parcelable
+    public int describeContents() {
+        return 0;
+    }
+
+    public boolean equals(Object obj) {
+        return this == obj || ((obj instanceof DataSource) && zza((DataSource) obj));
+    }
+
+    public String getAppPackageName() {
+        Application application = this.zzake;
+        if (application == null) {
+            return null;
+        }
+        return application.getPackageName();
+    }
+
+    public DataType getDataType() {
+        return this.zzajF;
+    }
+
+    public Device getDevice() {
+        return this.zzakd;
+    }
+
+    public String getName() {
+        return this.mName;
+    }
+
+    public String getStreamIdentifier() {
+        return this.zzakg;
+    }
+
+    public String getStreamName() {
+        return this.zzakf;
+    }
+
+    public int getType() {
+        return this.zzSq;
+    }
+
+    int getVersionCode() {
+        return this.zzCY;
+    }
+
+    public int hashCode() {
+        return this.zzakg.hashCode();
+    }
+
+    public String toDebugString() {
+        String str;
+        String str2;
+        String str3;
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.zzSq == 0 ? "r" : "d");
+        sb.append(":");
+        sb.append(this.zzajF.zzqD());
+        Application application = this.zzake;
+        if (application == null) {
+            str = "";
+        } else if (application.equals(Application.zzajM)) {
+            str = ":gms";
+        } else {
+            str = ":" + this.zzake.getPackageName();
+        }
+        sb.append(str);
+        if (this.zzakd != null) {
+            str2 = ":" + this.zzakd.getModel() + ":" + this.zzakd.getUid();
+        } else {
+            str2 = "";
+        }
+        sb.append(str2);
+        if (this.zzakf != null) {
+            str3 = ":" + this.zzakf;
+        } else {
+            str3 = "";
+        }
+        sb.append(str3);
+        return sb.toString();
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder("DataSource{");
+        sb.append(getTypeString());
+        if (this.mName != null) {
+            sb.append(":");
+            sb.append(this.mName);
+        }
+        if (this.zzake != null) {
+            sb.append(":");
+            sb.append(this.zzake);
+        }
+        if (this.zzakd != null) {
+            sb.append(":");
+            sb.append(this.zzakd);
+        }
+        if (this.zzakf != null) {
+            sb.append(":");
+            sb.append(this.zzakf);
+        }
+        sb.append(":");
+        sb.append(this.zzajF);
+        sb.append("}");
+        return sb.toString();
+    }
+
+    @Override // android.os.Parcelable
+    public void writeToParcel(Parcel parcel, int i) {
+        zzf.zza(this, parcel, i);
+    }
+
+    public Application zzqB() {
+        return this.zzake;
+    }
+}

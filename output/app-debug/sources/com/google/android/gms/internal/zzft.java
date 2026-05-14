@@ -1,0 +1,33 @@
+package com.google.android.gms.internal;
+
+import android.content.Context;
+import com.google.android.gms.ads.internal.request.AdResponseParcel;
+import com.google.android.gms.internal.zzha;
+
+/* JADX INFO: loaded from: classes.dex */
+@zzgd
+public class zzft {
+
+    public interface zza {
+        void zzb(zzha zzhaVar);
+    }
+
+    public zzhh zza(Context context, com.google.android.gms.ads.internal.zza zzaVar, zzha.zza zzaVar2, zzan zzanVar, zzid zzidVar, zzef zzefVar, zza zzaVar3) {
+        zzhh zzfwVar;
+        AdResponseParcel adResponseParcel = zzaVar2.zzFs;
+        if (!adResponseParcel.zzsp) {
+            zzfwVar = adResponseParcel.zzCK ? new zzfw(context, zzaVar2, zzidVar, zzefVar, zzaVar3) : adResponseParcel.zzCQ ? new zzfr(context, zzaVar2, zzidVar, zzaVar3) : (zzbz.zzuj.get().booleanValue() && zzlk.zzoX() && !zzlk.isAtLeastL() && zzidVar.zzaN().zzsn) ? new zzfv(context, zzaVar2, zzidVar, zzaVar3) : new zzfu(context, zzaVar2, zzidVar, zzaVar3);
+        } else {
+            if (!(zzaVar instanceof com.google.android.gms.ads.internal.zzm)) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Invalid NativeAdManager type. Found: ");
+                sb.append(zzaVar != null ? zzaVar.getClass().getName() : "null");
+                sb.append("; Required: NativeAdManager.");
+                throw new IllegalArgumentException(sb.toString());
+            }
+            zzfwVar = new zzfx(context, (com.google.android.gms.ads.internal.zzm) zzaVar, new zzbc(), zzaVar2, zzanVar, zzaVar3);
+        }
+        zzfwVar.zzgj();
+        return zzfwVar;
+    }
+}

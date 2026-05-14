@@ -1,0 +1,66 @@
+package com.google.android.gms.fitness.data;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+import com.google.android.gms.common.internal.safeparcel.zza;
+import java.util.ArrayList;
+
+/* JADX INFO: loaded from: classes.dex */
+public class zzo implements Parcelable.Creator<RawDataSet> {
+    static void zza(RawDataSet rawDataSet, Parcel parcel, int i) {
+        int iZzac = com.google.android.gms.common.internal.safeparcel.zzb.zzac(parcel);
+        com.google.android.gms.common.internal.safeparcel.zzb.zzc(parcel, 1, rawDataSet.zzakH);
+        com.google.android.gms.common.internal.safeparcel.zzb.zzc(parcel, 1000, rawDataSet.zzCY);
+        com.google.android.gms.common.internal.safeparcel.zzb.zzc(parcel, 2, rawDataSet.zzakJ);
+        com.google.android.gms.common.internal.safeparcel.zzb.zzc(parcel, 3, rawDataSet.zzakK, false);
+        com.google.android.gms.common.internal.safeparcel.zzb.zza(parcel, 4, rawDataSet.zzajU);
+        com.google.android.gms.common.internal.safeparcel.zzb.zzH(parcel, iZzac);
+    }
+
+    /* JADX WARN: Unreachable blocks removed: 1, instructions: 1 */
+    @Override // android.os.Parcelable.Creator
+    /* JADX INFO: renamed from: zzcu, reason: merged with bridge method [inline-methods] */
+    public RawDataSet createFromParcel(Parcel parcel) {
+        int iZzab = com.google.android.gms.common.internal.safeparcel.zza.zzab(parcel);
+        ArrayList arrayListZzc = null;
+        int iZzg = 0;
+        int iZzg2 = 0;
+        int iZzg3 = 0;
+        boolean zZzc = false;
+        while (parcel.dataPosition() < iZzab) {
+            int iZzaa = com.google.android.gms.common.internal.safeparcel.zza.zzaa(parcel);
+            int iZzbA = com.google.android.gms.common.internal.safeparcel.zza.zzbA(iZzaa);
+            if (iZzbA != 1000) {
+                switch (iZzbA) {
+                    case 1:
+                        iZzg2 = com.google.android.gms.common.internal.safeparcel.zza.zzg(parcel, iZzaa);
+                        break;
+                    case 2:
+                        iZzg3 = com.google.android.gms.common.internal.safeparcel.zza.zzg(parcel, iZzaa);
+                        break;
+                    case 3:
+                        arrayListZzc = com.google.android.gms.common.internal.safeparcel.zza.zzc(parcel, iZzaa, RawDataPoint.CREATOR);
+                        break;
+                    case 4:
+                        zZzc = com.google.android.gms.common.internal.safeparcel.zza.zzc(parcel, iZzaa);
+                        break;
+                    default:
+                        com.google.android.gms.common.internal.safeparcel.zza.zzb(parcel, iZzaa);
+                        break;
+                }
+            } else {
+                iZzg = com.google.android.gms.common.internal.safeparcel.zza.zzg(parcel, iZzaa);
+            }
+        }
+        if (parcel.dataPosition() == iZzab) {
+            return new RawDataSet(iZzg, iZzg2, iZzg3, arrayListZzc, zZzc);
+        }
+        throw new zza.C0036zza("Overread allowed size end=" + iZzab, parcel);
+    }
+
+    @Override // android.os.Parcelable.Creator
+    /* JADX INFO: renamed from: zzen, reason: merged with bridge method [inline-methods] */
+    public RawDataSet[] newArray(int i) {
+        return new RawDataSet[i];
+    }
+}
