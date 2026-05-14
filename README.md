@@ -2,8 +2,6 @@
 
 Outil d'audit de sécurité Android qui analyse l'authentification et la gestion de session de deux APKs vulnérables, mappe les résultats sur l'OWASP MASVS et génère un rapport PDF + JSON enrichi par l'IA Claude.
 
-**Module M44 — Sécurité des applications multimédia et Embarquée | ENSA Marrakech**
-
 ---
 
 ## Table des matières
