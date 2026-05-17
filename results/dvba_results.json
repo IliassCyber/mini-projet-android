@@ -297,53 +297,290 @@
   },
   "dynamic": {
     "mode": "API_DIRECT",
-    "logout_effective": false,
+    "logout_effective": null,
     "token_lifetime_minutes": null,
     "rotation_enforced": null,
     "findings": [
       {
-        "severity": "CRITIQUE",
-        "type": "JWT sans expiration",
-        "detail": "Le token JWT ne contient pas de champ 'exp' — il ne expire jamais"
+        "severity": "INFO",
+        "type": "Backend inaccessible",
+        "detail": "DVBA non disponible sur http://localhost:3000. Demarrez le backend et relancez sans --skip-dynamic."
+      }
+    ]
+  },
+  "cookie": {
+    "findings": [
+      {
+        "id": "NO_TRAFFIC_FILE",
+        "severity": "INFO",
+        "type": "Fichier de trafic introuvable",
+        "detail": "results\\traffic_dvba.json non trouvé — lancez d'abord l'analyse dynamique.",
+        "description": "Aucun trafic intercepté."
+      }
+    ],
+    "cookies_found": 0,
+    "score": 10
+  },
+  "storage": {
+    "findings": [
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\a\\a\\a\\a\\a.java",
+        "line": 576,
+        "detail": "Log.e(str, \"Failed to check device credential",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
       },
       {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\a\\a\\a\\a\\a.java",
+        "line": 585,
+        "detail": "Log.e(str, \"Failed to check device credential",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\a\\a\\a\\a\\a.java",
+        "line": 592,
+        "detail": "Log.e(str, \"Failed to check device credential",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\a\\a\\a\\a\\a.java",
+        "line": 605,
+        "detail": "Log.e(str, \"Failed to check device credential",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\androidx\\biometric\\DeviceCredentialHandlerActivity.java",
+        "line": 48,
+        "detail": "Log.e(\"DeviceCredential",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\androidx\\biometric\\DeviceCredentialHandlerActivity.java",
+        "line": 75,
+        "detail": "Log.e(\"DeviceCredential",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\b\\b\\p\\w.java",
+        "line": 91,
+        "detail": "Log.e(\"AppCompatSpin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\b\\b\\p\\w.java",
+        "line": 145,
+        "detail": "Log.e(\"AppCompatSpin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\b\\b\\p\\w.java",
+        "line": 150,
+        "detail": "Log.e(\"AppCompatSpin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\b\\b\\p\\w.java",
+        "line": 178,
+        "detail": "Log.e(\"AppCompatSpin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\b\\l\\a\\e.java",
+        "line": 177,
+        "detail": "Log.w(\"FragmentActivity\", \"Invalid requestCode mappin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\b\\l\\a\\k.java",
+        "line": 2004,
+        "detail": "Log.e(\"FragmentManager\", \"Failed dumpin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\c\\c\\a\\a\\f\\c\\a1.java",
+        "line": 46,
+        "detail": "Log.d(\"GetTokenResponse\", \"Failed to read GetToken",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\c\\c\\a\\a\\f\\c\\a1.java",
+        "line": 61,
+        "detail": "Log.d(\"GetTokenResponse\", \"Failed to convert GetToken",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\c\\c\\b\\h\\d0\\i.java",
+        "line": 18,
+        "detail": "Log.e(aVar.f1410a, aVar.a(\"Error parsing token",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\c\\c\\b\\h\\d0\\k.java",
+        "line": 63,
+        "detail": "Log.e(aVar2.f1410a, aVar2.a(\"Unable to decode token",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_SHARED_PREFS_TOKEN",
+        "masvs": "MASVS-STORAGE-1",
         "severity": "CRITIQUE",
-        "type": "Token rejou apres deconnexion",
-        "detail": "Le serveur repond HTTP 200 sur /api/user/profile apres logout — invalidation cote serveur absente"
+        "type": "Token dans SharedPreferences non chiffré",
+        "file": "sources\\com\\app\\damnvulnerablebank\\BankLogin.java",
+        "line": 44,
+        "detail": "sharedPreferences.edit().putString(\"accesstoken",
+        "description": "Un token d'authentification est stocké dans SharedPreferences standard — lisible par ADB sur appareil rooté ou via backup ADB.",
+        "fix": "Remplacer par EncryptedSharedPreferences (AndroidX Security)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\com\\app\\damnvulnerablebank\\BankLogin.java",
+        "line": 43,
+        "detail": "Log.d(\"accesstoken",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_NO_KEYSTORE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Absence d'Android Keystore",
+        "file": "— (non détecté dans les sources)",
+        "line": 0,
+        "detail": "KeyStore.getInstance(\"AndroidKeyStore\") introuvable dans le code",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      }
+    ],
+    "uses_encrypted_prefs": false,
+    "uses_keystore": false,
+    "files_scanned": 1165,
+    "score": 0,
+    "adb_result": null
+  },
+  "session": {
+    "mode": "SESSION_SCANNER",
+    "session_id_detected": null,
+    "findings": [
+      {
+        "id": "SESSION_NA_JWT",
+        "severity": "INFO",
+        "type": "Session scanner non applicable",
+        "detail": "L'application utilise JWT, pas de session cookie."
       }
     ]
   },
   "ai": {
     "checklist": [
-      "- [ ] [MASVS-AUTH-1] Vérifier que les tokens JWT contiennent un champ 'exp' valide et que la durée de vie est limitée à une valeur raisonnable (ex. 15 à 60 minutes pour un access token)",
-      "- [ ] [MASVS-AUTH-1] Vérifier que le serveur invalide effectivement le token côté serveur lors de la déconnexion (blacklist ou révocation de session)",
-      "- [ ] [MASVS-AUTH-2] Vérifier que les tokens JWT ne peuvent pas être rejoués après une déconnexion explicite de l'utilisateur",
-      "- [ ] [MASVS-AUTH-2] Vérifier que la rotation des tokens (refresh token) est implémentée et que les anciens tokens sont invalidés après rotation",
-      "- [ ] [MASVS-AUTH-3] Vérifier que l'algorithme de signature JWT utilisé est robuste (RS256 ou ES256) et que l'algorithme 'none' est explicitement rejeté par le serveur",
-      "- [ ] [MASVS-STORAGE-1] Vérifier que les tokens JWT (accesstoken) ne sont pas stockés en clair dans les SharedPreferences non chiffrées (fichiers c\\b\\a\\h.java, c\\b\\a\\l.java, c\\b\\a\\t.java, c\\b\\a\\w.java, BankLogin.java, etc.)",
-      "- [ ] [MASVS-STORAGE-1] Vérifier que les tokens sont stockés dans Android Keystore ou via EncryptedSharedPreferences (Jetpack Security) plutôt que dans des SharedPreferences en mode MODE_PRIVATE non chiffré",
-      "- [ ] [MASVS-STORAGE-2] Vérifier qu'aucun secret cryptographique, mot de passe ou valeur sensible n'est codé en dur dans le code source (fichiers b\\i\\m\\v\\b.java ligne 402 et c\\c\\a\\a\\f\\c\\n1.java ligne 69)",
-      "- [ ] [MASVS-STORAGE-3] Vérifier qu'aucun token, identifiant ou information d'authentification n'est écrit dans les logs applicatifs (Log.d(\"accesstoken\", string) dans BankLogin.java ligne 43 et autres occurrences)",
-      "- [ ] [MASVS-NETWORK-1] Vérifier que toutes les communications réseau utilisent exclusivement HTTPS/TLS et qu'aucune URL en HTTP clair n'est présente dans le code (URL http://s détectée dans a\\a\\a\\a\\a.java ligne 487)",
-      "- [ ] [MASVS-NETWORK-1] Vérifier que la configuration réseau Android (network_security_config.xml) interdit explicitement le trafic en clair (cleartextTrafficPermitted=\"false\")",
-      "- [ ] [MASVS-CRYPTO-1] Vérifier que le secret utilisé pour la signature JWT (détecté en dur dans n1.java) est généré aléatoirement, d'une longueur suffisante (≥ 256 bits), et stocké de manière sécurisée côté serveur",
-      "- [ ] [MASVS-AUTH-1] Vérifier que les claims JWT (sub, iss, aud) sont correctement validés côté serveur à chaque requête et que les erreurs de parsing de claims sont gérées sans exposer d'informations sensibles dans les logs",
-      "- [ ] [MASVS-STORAGE-2] Vérifier que les tokens Firebase (com.google.firebase.auth) stockés dans les SharedPreferences sont également protégés par chiffrement et soumis aux mêmes règles de cycle de vie que les tokens JWT applicatifs"
+      "- [ ] [MASVS-AUTH-1] Vérifier que les tokens JWT sont stockés dans le Keystore Android chiffré et non dans les SharedPreferences en clair",
+      "- [ ] [MASVS-AUTH-2] Vérifier que les tokens JWT ont une durée de vie limitée et qu'un mécanisme d'expiration côté serveur est effectivement appliqué",
+      "- [ ] [MASVS-AUTH-3] Vérifier que la rotation des tokens (refresh token) est implémentée et que les anciens tokens sont invalidés après rotation",
+      "- [ ] [MASVS-AUTH-4] Vérifier que la déconnexion entraîne une invalidation effective du token côté serveur (révocation) et non seulement une suppression locale",
+      "- [ ] [MASVS-AUTH-5] Vérifier que les tokens JWT ne sont pas rejouables après expiration ou déconnexion (protection anti-rejeu côté backend)",
+      "- [ ] [MASVS-STORAGE-1] Vérifier qu'aucun token d'accès (accesstoken JWT, token Firebase) n'est stocké dans les SharedPreferences sans chiffrement",
+      "- [ ] [MASVS-STORAGE-2] Vérifier qu'aucun secret ou mot de passe n'est codé en dur dans le code source de l'application (fichiers b.java et n1.java)",
+      "- [ ] [MASVS-STORAGE-3] Vérifier qu'aucune information sensible (tokens, credentials, erreurs d'authentification) n'est écrite dans les logs Android (Log.d, Log.e)",
+      "- [ ] [MASVS-STORAGE-4] Vérifier que le fichier de SharedPreferences contenant les tokens JWT est créé en mode MODE_PRIVATE et inaccessible aux autres applications",
+      "- [ ] [MASVS-NETWORK-1] Vérifier qu'aucune communication HTTP en clair n'est utilisée pour transmettre des tokens JWT ou des données d'authentification",
+      "- [ ] [MASVS-NETWORK-2] Vérifier que la configuration réseau (Network Security Config) interdit explicitement tout trafic en clair (cleartext) vers tous les domaines",
+      "- [ ] [MASVS-CRYPTO-1] Vérifier que le secret utilisé pour la signature des tokens JWT n'est pas codé en dur dans le code de l'application ou dans les ressources",
+      "- [ ] [MASVS-CRYPTO-2] Vérifier que l'algorithme de signature JWT utilisé est robuste (RS256 ou ES256) et que l'algorithme \"none\" est explicitement rejeté",
+      "- [ ] [MASVS-CODE-4] Vérifier que les messages d'erreur liés à l'authentification biométrique (KeyguardManager, DeviceCredentialHandler) ne divulguent pas d'informations exploitables dans les logs de production"
     ],
     "acceptance_criteria": [
-      "Le système DOIT émettre des tokens JWT contenant un champ 'exp' avec une durée de validité maximale de 60 minutes afin d'éviter l'utilisation indéfinie d'un token compromis.",
-      "Le système NE DOIT PAS retourner une réponse HTTP 200 sur un endpoint authentifié après que l'utilisateur s'est déconnecté, afin de garantir l'invalidation effective des sessions côté serveur.",
-      "Le système DOIT stocker les tokens JWT exclusivement dans EncryptedSharedPreferences ou via Android Keystore afin de protéger les tokens contre toute extraction depuis un appareil rooté ou une sauvegarde non chiffrée.",
-      "Le système NE DOIT PAS inscrire de tokens, de mots de passe ou de toute valeur d'authentification dans les journaux applicatifs (Logcat) afin d'empêcher la fuite de credentials via les logs accessibles à d'autres applications sur un appareil déboggué.",
-      "Le système NE DOIT PAS contenir de secrets cryptographiques ou de mots de passe codés en dur dans le bytecode de l'application afin d'éviter leur extraction par rétro-ingénierie statique.",
-      "Le système DOIT implémenter une rotation des refresh tokens à usage unique (one-time use) afin de détecter et bloquer toute tentative de rejeu d'un token volé.",
-      "Le système DOIT utiliser exclusivement des connexions HTTPS avec TLS 1.2 minimum pour toutes les communications réseau afin d'empêcher l'interception des tokens JWT en transit.",
-      "Le système DOIT valider l'ensemble des claims JWT (exp, iss, aud, sub) côté serveur à chaque requête authentifiée afin de rejeter tout token malformé, expiré ou émis par une source non autorisée.",
-      "Le système NE DOIT PAS utiliser l'algorithme de signature JWT 'none' et doit rejeter explicitement toute tentative de validation d'un token signé avec cet algorithme, afin de prévenir les attaques de contournement de signature."
+      "Le système DOIT stocker les tokens JWT exclusivement dans le Android Keystore ou dans un stockage chiffré équivalent afin d'empêcher leur extraction par une application tierce ou lors d'une compromission de l'appareil.",
+      "Le système NE DOIT PAS écrire de tokens d'accès, de secrets ou d'informations d'authentification dans les logs Android (Log.d, Log.e, Log.i) afin d'éviter leur exposition via des outils de lecture de logs (adb logcat).",
+      "Le système NE DOIT PAS contenir de secrets, de mots de passe ou de clés de signature JWT codés en dur dans le code source ou les ressources compilées afin de prévenir leur extraction par ingénierie inverse.",
+      "Le système DOIT invalider le token JWT côté serveur lors de chaque déconnexion explicite afin de garantir qu'un token intercepté ne puisse pas être réutilisé après la fin de session.",
+      "Le système DOIT implémenter une durée de vie maximale explicite pour les tokens JWT (access token ≤ 15 minutes, refresh token ≤ 24 heures) afin de limiter la fenêtre d'exploitation en cas de vol de token.",
+      "Le système DOIT implémenter un mécanisme de rotation des refresh tokens avec invalidation de l'ancien token à chaque renouvellement afin de détecter et bloquer les tentatives de rejeu.",
+      "Le système NE DOIT PAS transmettre de tokens JWT ou de credentials via des connexions HTTP non chiffrées afin de prévenir leur interception par une attaque de type man-in-the-middle.",
+      "Le système DOIT utiliser un algorithme de signature asymétrique (RS256 ou ES256) pour les tokens JWT et DOIT rejeter explicitement les tokens signés avec l'algorithme \"none\" afin de prévenir les attaques de falsification de tokens."
     ],
-    "summary": "L'application Android auditée est une application bancaire mobile (DamnVulnerableBank) utilisant JSON Web Tokens (JWT) pour gérer l'authentification de ses utilisateurs. L'analyse combinée statique et dynamique a mis en évidence des vulnérabilités de niveau critique qui compromettent directement la sécurité des sessions utilisateurs : les tokens JWT émis ne contiennent aucun champ d'expiration ('exp'), les rendant valides indéfiniment, et le serveur ne procède à aucune invalidation côté serveur lors de la déconnexion, permettant ainsi le rejeu de tokens après logout confirmé par une réponse HTTP 200. Par ailleurs, deux secrets cryptographiques distincts ont été retrouvés codés en dur dans le bytecode de l'application, rendant leur extraction triviale par rétro-ingénierie, et l'ensemble des tokens d'accès sont stockés en clair dans des SharedPreferences non chiffrées, exposant les credentials à toute application malveillante disposant d'un accès root ou à une extraction par sauvegarde ADB. Le niveau de risque global de l'application est évalué comme critique, avec un score particulièrement alarmant sur le domaine STORAGE (0/10) et AUTH (6/10), ce qui signifie qu'un attaquant ayant intercepté ou extrait un token peut accéder durablement aux comptes bancaires des utilisateurs sans aucune contrainte temporelle ni détection possible. Les trois recommandations prioritaires sont les suivantes : (1) corriger immédiatement la gestion du cycle de vie des tokens JWT en ajoutant un champ 'exp' court et en implémentant une liste de révocation côté serveur ; (2) migrer le stockage des tokens vers EncryptedSharedPreferences ou Android Keystore afin de protéger les credentials au repos ; (3) supprimer l'ensemble des secrets codés en dur du code source et les remplacer par des mécanismes de provisionnement sécurisé côté serveur.",
+    "summary": "L'application Android auditée est une application bancaire (DamnVulnerableBank) utilisant des tokens JWT pour la gestion de l'authentification des utilisateurs. L'analyse révèle deux vulnérabilités de niveau critique particulièrement préoccupantes : la présence de secrets et de mots de passe codés en dur directement dans le code source (fichiers b.java et n1.java), combinée au stockage des tokens JWT d'accès en clair dans les SharedPreferences Android sans aucun chiffrement, exposant l'ensemble des sessions utilisateurs à une extraction triviale. Le niveau de risque global de l'application est évalué comme critique, avec des scores nuls sur les domaines d'authentification (AUTH : 0/10) et de stockage (STORAGE : 0/10), ce qui témoigne d'une absence quasi-totale de contrôles de sécurité sur ces surfaces d'attaque fondamentales. L'impact potentiel pour les utilisateurs est majeur : un attaquant disposant d'un accès physique à l'appareil, ou exploitant une application malveillante installée conjointement, peut extraire les tokens JWT, usurper l'identité des victimes et réaliser des opérations bancaires frauduleuses sans connaissance du mot de passe. Par ailleurs, l'écriture systématique d'informations sensibles dans les logs Android et la détection d'une URL HTTP en clair aggravent la surface d'attaque en facilitant l'interception passive des données d'authentification. Les trois recommandations prioritaires sont les suivantes : premièrement, migrer immédiatement le stockage des tokens JWT vers le Android Keystore avec chiffrement AES-256 ; deuxièmement, supprimer tous les secrets codés en dur et les externaliser vers un système de gestion de secrets sécurisé côté serveur ; troisièmement, mettre en place une politique d'expiration et de révocation des tokens JWT côté backend, assortie d'une rotation systématique des refresh tokens.",
     "domain_scores": {
-      "AUTH": 6,
+      "AUTH": 0,
       "STORAGE": 0,
       "NETWORK": 9,
       "CRYPTO": 10

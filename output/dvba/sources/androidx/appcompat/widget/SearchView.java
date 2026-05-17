@@ -1268,7 +1268,7 @@ public class SearchView extends i0 implements b.b.o.b {
             r6 = this;
             r6.g0 = r7
             r0 = 1
-            r1 = 65536(0x10000, float:9.18355E-41)
+            r1 = 65536(0x10000, float:9.1835E-41)
             r2 = 0
             if (r7 == 0) goto L6e
             androidx.appcompat.widget.SearchView$SearchAutoComplete r3 = r6.q

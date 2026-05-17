@@ -34,3 +34,8 @@ mitmdump.log
 # Fichiers temporaires mitmproxy
 captured_token.txt
 flow_*
+venv/
+__pycache__/
+*.log
+output/
+results/

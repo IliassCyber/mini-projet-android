@@ -323,7 +323,7 @@ def analyze_insecure_bank(apk_name: str, results_dir: str) -> dict:
     # ── Test 1 : Login en HTTP clair ─────────────────────────────────────
     try:
         r = requests.post(f"{base}/login",
-                          data={"username": "dinesh", "password": "dinesh123"},
+                          data={"username": "dinesh", "password": "Dinesh@123!"},
                           timeout=8)
     except requests.ConnectionError:
         findings.append({
@@ -401,7 +401,7 @@ def analyze_insecure_bank(apk_name: str, results_dir: str) -> dict:
     # ── Test 4 : Données sensibles dans la réponse ───────────────────────
     try:
         r_acc = requests.post(f"{base}/getaccounts",
-                              data={"username": "dinesh", "password": "dinesh123"},
+                              data={"username": "dinesh", "password": "Dinesh@123!"},
                               timeout=8)
         if r_acc.status_code == 200:
             result["logout_effective"] = False   # pas de session = pas de logout réel

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide d'Installation — Auth & Session Security Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e17;--bg2:#0f1623;--bg3:#151d2e;--card:#1a2338;--border:#1e2d47;--accent:#3b82f6;--accent2:#60a5fa;--green:#22c55e;--red:#ef4444;--orange:#f97316;--yellow:#eab308;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--code-bg:#0d1117}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;line-height:1.7}
+header{background:linear-gradient(135deg,#0a0e17 0%,#0f1e3d 50%,#0a1628 100%);border-bottom:1px solid var(--border);padding:60px 40px 50px;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-50%;left:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(59,130,246,.08) 0%,transparent 70%);pointer-events:none}
+.header-inner{max-width:900px;margin:0 auto;position:relative;z-index:1}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:var(--accent2);padding:4px 12px;border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px}
+.badge::before{content:'●';color:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;line-height:1.15;margin-bottom:16px;background:linear-gradient(135deg,#fff 0%,#60a5fa 60%,#3b82f6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{color:var(--text2);font-size:17px;font-weight:300;max-width:600px}
+.header-stats{display:flex;gap:32px;margin-top:32px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent2)}
+.stat-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.container{max-width:900px;margin:0 auto;padding:48px 40px}
+.section{margin-bottom:56px}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.section-num{width:36px;height:36px;border-radius:8px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--accent2);flex-shrink:0}
+.section-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700}
+.section-sub{font-size:13px;color:var(--text3);margin-left:auto;font-family:'JetBrains Mono',monospace}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:16px}
+.card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.card p{color:var(--text2);font-size:14px}
+.alert{border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;font-size:14px}
+.alert-warn{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:#fdba74}
+.alert-info{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);color:var(--accent2)}
+.alert-success{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);color:#86efac}
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.code-block{background:var(--code-bg);border:1px solid #1e293b;border-radius:10px;margin:16px 0;overflow:hidden}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#0d1117;border-bottom:1px solid #1e293b}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.copy-btn{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:var(--accent2);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .2s}
+.copy-btn:hover{background:rgba(59,130,246,.25)}
+.copy-btn.copied{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);color:#86efac}
+pre{padding:16px 20px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7;color:#e2e8f0}
+.kw{color:#60a5fa}.str{color:#86efac}.cm{color:#475569;font-style:italic}
+.req-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.req-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;gap:12px;align-items:flex-start}
+.req-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.req-content{flex:1}
+.req-name{font-weight:600;font-size:14px;margin-bottom:2px}
+.req-detail{font-size:12px;color:var(--text3)}
+.steps-list{list-style:none}
+.steps-list li{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid rgba(30,45,71,.5)}
+.steps-list li:last-child{border-bottom:none}
+.step-n{width:24px;height:24px;border-radius:50%;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--accent2);flex-shrink:0;margin-top:2px}
+.step-text{font-size:14px;color:var(--text2)}
+.step-text strong{color:var(--text)}
+.pipeline{display:flex;flex-direction:column;gap:10px}
+.pipe-step{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;gap:14px;align-items:center;transition:border-color .2s}
+.pipe-step:hover{border-color:rgba(59,130,246,.3)}
+.pipe-num{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--text3);flex-shrink:0;width:32px}
+.pipe-name{font-weight:600;font-size:14px;flex:1}
+.pipe-desc{font-size:13px;color:var(--text2);flex:2}
+.pipe-badge{font-size:11px;padding:3px 8px;border-radius:20px;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.pipe-badge.new{background:rgba(234,179,8,.15);color:#fde047;border:1px solid rgba(234,179,8,.3)}
+.pipe-badge.base{background:rgba(59,130,246,.12);color:var(--accent2);border:1px solid rgba(59,130,246,.25)}
+.result-box{background:var(--code-bg);border:1px solid #1e293b;border-radius:10px;padding:20px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8}
+.r-ok{color:var(--green)}.r-err{color:var(--red)}.r-warn{color:var(--orange)}.r-info{color:var(--accent2)}.r-head{color:#fff;font-weight:700}
+.tabs{display:flex;gap:4px;margin-bottom:16px}
+.tab{padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text3);transition:all .2s;font-family:'JetBrains Mono',monospace}
+.tab.active{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.4);color:var(--accent2)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.scores-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.score-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px}
+.score-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.score-bar-wrap{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.score-bar{height:100%;border-radius:3px;transition:width 1s ease}
+.bar-red{background:var(--red)}.bar-orange{background:var(--orange)}.bar-yellow{background:var(--yellow)}.bar-green{background:var(--green)}
+.score-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800}
+.checklist{list-style:none}
+.checklist li{padding:8px 0;border-bottom:1px solid rgba(30,45,71,.4);font-size:13px;color:var(--text2);display:flex;gap:10px;align-items:flex-start;font-family:'JetBrains Mono',monospace}
+.checklist li::before{content:'[ ]';color:var(--text3);flex-shrink:0}
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:32px 40px;text-align:center}
+.footer-inner{max-width:900px;margin:0 auto}
+.footer-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--accent2);margin-bottom:8px}
+footer p{color:var(--text3);font-size:13px}
+code{font-family:'JetBrains Mono',monospace;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);padding:1px 6px;border-radius:4px;font-size:12px;color:var(--accent2)}
+@media(max-width:640px){header{padding:40px 20px 36px}h1{font-size:28px}.container{padding:32px 20px}.req-grid{grid-template-columns:1fr}.scores-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<div class="header-inner">
+<div class="badge">Guide d'installation complet · v1.0</div>
+<h1>Auth & Session<br>Security Analyzer</h1>
+<p class="subtitle">Guide pas-à-pas pour installer et exécuter l'outil d'audit de sécurité Android. Suivez chaque étape dans l'ordre pour éviter les problèmes rencontrés.</p>
+<div class="header-stats">
+<div class="stat"><span class="stat-val">7</span><span class="stat-label">Modules</span></div>
+<div class="stat"><span class="stat-val">5</span><span class="stat-label">Prérequis</span></div>
+<div class="stat"><span class="stat-val">2</span><span class="stat-label">Terminaux</span></div>
+<div class="stat"><span class="stat-val">~30min</span><span class="stat-label">Installation</span></div>
+</div>
+</div>
+</header>
+
+<div class="container">
+
+<div class="section">
+<div class="section-header"><div class="section-num">0</div><div class="section-title">Vue d'ensemble du projet</div></div>
+<p style="color:var(--text2);margin-bottom:20px">L'outil analyse un fichier <code>.apk</code> Android en 7 étapes pour détecter les vulnérabilités de sécurité.</p>
+<div class="pipeline">
+<div class="pipe-step"><div class="pipe-num">1/7</div><div class="pipe-name">Analyse Statique</div><div class="pipe-desc">Décompile l'APK avec JADX, scanne le code Java avec des regex</div><div class="pipe-badge base">Base</div></div>
+<div class="pipe-step"><div class="pipe-num">2/7</div><div class="pipe-name">Analyse Dynamique</div><div class="pipe-desc">Envoie de vraies requêtes HTTP pour tester login/logout</div><div class="pipe-badge base">Base</div></div>
+<div class="pipe-step"><div class="pipe-num">3/7</div><div class="pipe-name">Cookie Scanner</div><div class="pipe-desc">Vérifie les flags OWASP sur les cookies HTTP (HttpOnly, Secure, SameSite)</div><div class="pipe-badge new">Ajouté</div></div>
+<div class="pipe-step"><div class="pipe-num">4/7</div><div class="pipe-name">Storage Scanner</div><div class="pipe-desc">Détecte les tokens stockés en clair (SharedPreferences, SQLite, logs)</div><div class="pipe-badge new">Ajouté</div></div>
+<div class="pipe-step"><div class="pipe-num">5/7</div><div class="pipe-name">Session Scanner</div><div class="pipe-desc">Teste entropie SID, fixation de session, timeout, invalidation au logout</div><div class="pipe-badge new">Ajouté</div></div>
+<div class="pipe-step"><div class="pipe-num">6/7</div><div class="pipe-name">Analyse IA (Claude)</div><div class="pipe-desc">Génère la checklist MASVS et résumé exécutif via l'API Anthropic</div><div class="pipe-badge base">Base</div></div>
+<div class="pipe-step"><div class="pipe-num">7/7</div><div class="pipe-name">Rapport PDF + JSON</div><div class="pipe-desc">Génère les rapports finaux dans le dossier results/</div><div class="pipe-badge base">Base</div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-header"><div class="section-num">1</div><div class="section-title">Prérequis à installer</div><div class="section-sub">Avant tout</div></div>
+<div class="alert alert-warn"><div class="alert-icon">⚠️</div><div>Installez tout dans l'ordre. <strong>Ne pas installer Python 3.14</strong> — incompatible avec Flask et plusieurs bibliothèques.</div></div>
+<div class="req-grid">
+<div class="req-item"><div class="req-icon">🐍</div><div class="req-content"><div class="req-name">Python 3.10 – 3.13</div><div class="req-detail">⚠️ NE PAS utiliser Python 3.14 — installer 3.13 depuis python.org</div></div></div>
+<div class="req-item"><div class="req-icon">☕</div><div class="req-content"><div class="req-name">JADX 1.5.5</div><div class="req-detail">Décompilateur APK. Télécharger sur github.com/skylot/jadx/releases</div></div></div>
+<div class="req-item"><div class="req-icon">📦</div><div class="req-content"><div class="req-name">Git</div><div class="req-detail">Pour cloner le repo du projet depuis GitHub</div></div></div>
+<div class="req-item"><div class="req-icon">🔑</div><div class="req-content"><div class="req-name">Clé API Anthropic</div><div class="req-detail">Créer un compte sur platform.anthropic.com → API Keys</div></div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-header"><div class="section-num">2</div><div class="section-title">Installer JADX et l'ajouter au PATH</div></div>
+<div class="alert alert-info"><div class="alert-icon">ℹ️</div><div>JADX est obligatoire pour l'étape 1. Sans lui, la décompilation APK échoue.</div></div>
+<ul class="steps-list">
+<li><div class="step-n">1</div><div class="step-text">Télécharger <strong>jadx-1.5.5-no-jre-win.zip</strong> depuis <strong>github.com/skylot/jadx/releases</strong></div></li>
+<li><div class="step-n">2</div><div class="step-text">Extraire dans <code>C:\Users\VotreNom\Downloads\jadx-1.5.5\</code></div></li>
+<li><div class="step-n">3</div><div class="step-text">Ouvrir <strong>Variables d'environnement</strong> → PATH → Ajouter <code>C:\Users\VotreNom\Downloads\jadx-1.5.5\bin</code></div></li>
+<li><div class="step-n">4</div><div class="step-text"><strong>Ouvrir un nouveau terminal</strong> PowerShell et vérifier :</div></li>
+</ul>
+<div class="code-block"><div class="code-header"><span class="code-lang">PowerShell</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre>jadx --version
+<span class="cm"># Doit afficher : 1.5.5</span></pre></div>
+<div class="alert alert-warn"><div class="alert-icon">⚠️</div><div><strong>Si "jadx n'est pas reconnu" :</strong> Rechargez le PATH sans fermer PowerShell :<br><code>$env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")</code></div></div>
+</div>
+
+<div class="section">
+<div class="section-header"><div class="section-num">3</div><div class="section-title">Installer les packages Python</div></div>
+<div class="code-block"><div class="code-header"><span class="code-lang">PowerShell</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre>pip install fpdf2 anthropic colorama requests python-dotenv flask mitmproxy</pre></div>
+<div class="alert alert-warn"><div class="alert-icon">⚠️</div><div><strong>Si Flask échoue avec Python 3.14 :</strong><br><code>pip install "flask>=3.0" werkzeug</code></div></div>
+</div>
+
+<div class="section">
+<div class="section-header"><div class="section-num">4</div><div class="section-title">Configurer le projet</div></div>
+<div class="code-block"><div class="code-header"><span class="code-lang">PowerShell</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre><span class="cm"># Aller dans le dossier du projet</span>
+cd "C:\chemin\vers\mini-projet-android"
+
+<span class="cm"># Créer les dossiers nécessaires</span>
+mkdir apks, results, output
+
+<span class="cm"># Copier les APKs dans apks/</span>
+<span class="cm"># Copier cookie_scanner.py, session_scanner.py, storage_scanner.py dans le projet</span>
+
+<span class="cm"># Créer le fichier .env avec votre clé API</span>
+echo "ANTHROPIC_API_KEY=sk-ant-VOTRE-CLE-ICI" > .env</pre></div>
+<div class="alert alert-info"><div class="alert-icon">🔑</div><div>La clé API se récupère sur <strong>platform.anthropic.com</strong> → API Keys. Elle commence par <code>sk-ant-</code></div></div>
+</div>
+
+<div class="section">
+<div class="section-header"><div class="section-num">5</div><div class="section-title">Lancer le backend InsecureBankv2</div><div class="section-sub">Terminal 1</div></div>
+<div class="alert alert-warn"><div class="alert-icon">⚠️</div><div>Utiliser le fichier <code>app.py</code> <strong>corrigé et fourni</strong> — pas celui du repo original (Python 2, incompatible).</div></div>
+<div class="code-block"><div class="code-header"><span class="code-lang">PowerShell — Terminal 1 (laisser ouvert)</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre><span class="cm"># Cloner le repo backend</span>
+git clone https://github.com/dineshshetty/Android-InsecureBankv2.git
+cd Android-InsecureBankv2\AndroLabServer
+
+<span class="cm"># Remplacer app.py par la version corrigée fournie</span>
+<span class="cm"># Puis lancer :</span>
+pip install flask
+python app.py</pre></div>
+<div class="result-box">
+<div class="r-head">Résultat attendu :</div>
+<div>InsecureBankv2 Backend-Server</div>
+<div>dinesh / Dinesh@123!  |  jack / Jack@123!</div>
+<div class="r-ok"> * Running on http://127.0.0.1:8888</div>
+</div>
+<div class="code-block" style="margin-top:16px"><div class="code-header"><span class="code-lang">Vérifier que le backend fonctionne</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre>curl.exe -X POST http://localhost:8888/login -d "username=dinesh&password=Dinesh@123!"
+<span class="cm"># Réponse attendue : {"message": "Correct Credentials", "user": "dinesh"}</span></pre></div>
+</div>
+
+<div class="section">
+<div class="section-header"><div class="section-num">6</div><div class="section-title">Lancer l'analyse</div><div class="section-sub">Terminal 2</div></div>
+<div class="tabs">
+<div class="tab active" onclick="switchTab(this,'demo')">Mode Démo ⭐</div>
+<div class="tab" onclick="switchTab(this,'static')">Statique seulement</div>
+<div class="tab" onclick="switchTab(this,'full')">Mode Complet</div>
+</div>
+<div class="tab-content active" id="demo">
+<div class="alert alert-success"><div class="alert-icon">✅</div><div><strong>Recommandé pour la présentation.</strong> Toutes les 7 étapes s'affichent avec des données réalistes. Aucun outil externe requis — juste Python.</div></div>
+<div class="code-block"><div class="code-header"><span class="code-lang">PowerShell — Terminal 2</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre>cd "C:\chemin\vers\mini-projet-android"
+py .\main.py --apk .\apks\app-debug.apk --demo</pre></div>
+</div>
+<div class="tab-content" id="static">
+<div class="alert alert-info"><div class="alert-icon">ℹ️</div><div>Lance la vraie décompilation JADX + scan regex + storage scanner. JADX doit être installé. Pas besoin de backend ni de clé API.</div></div>
+<div class="code-block"><div class="code-header"><span class="code-lang">PowerShell — Terminal 2</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre>py .\main.py --apk .\apks\app-debug.apk --static-only</pre></div>
+</div>
+<div class="tab-content" id="full">
+<div class="alert alert-warn"><div class="alert-icon">⚠️</div><div>Nécessite : JADX + backend Flask sur port 8888 + clé API Anthropic dans <code>.env</code></div></div>
+<div class="code-block"><div class="code-header"><span class="code-lang">PowerShell — Terminal 2</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre><span class="cm"># Avec backend + IA, sans proxy mitmproxy</span>
+py .\main.py --apk .\apks\app-debug.apk --skip-dynamic
+
+<span class="cm"># Mode totalement complet</span>
+py .\main.py --apk .\apks\app-debug.apk</pre></div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-header"><div class="section-num">7</div><div class="section-title">Résultats attendus</div></div>
+<div class="result-box" style="margin-bottom:24px">
+<div class="r-head">==============================================================</div>
+<div class="r-head">  Auth & Session Security Analyzer</div>
+<div class="r-head">==============================================================</div>
+<div>&nbsp;</div>
+<div class="r-info">[1/7]  Analyse statique (JADX + patterns regex)...</div>
+<div class="r-ok">  OK  Decompilation OK — 2918 fichiers analyses</div>
+<div class="r-ok">  OK  42 vulnerabilites trouvees (score 0/10)</div>
+<div>&nbsp;</div>
+<div class="r-info">[2/7]  Analyse dynamique...</div>
+<div class="r-err">  ERR Deconnexion NON effective — token rejouable !</div>
+<div>&nbsp;</div>
+<div class="r-info">[3/7]  Cookie Security Scanner...</div>
+<div class="r-ok">  OK  3 findings cookies</div>
+<div>&nbsp;</div>
+<div class="r-info">[4/7]  Android Storage Scanner...</div>
+<div class="r-ok">  OK  38 findings storage (score 0/10)</div>
+<div>&nbsp;</div>
+<div class="r-info">[5/7]  Session Scanner...</div>
+<div class="r-ok">  OK  3 findings session</div>
+<div>&nbsp;</div>
+<div class="r-info">[6/7]  Analyse IA — Claude...</div>
+<div class="r-ok">  OK  Checklist generee : 14 elements</div>
+<div class="r-ok">  OK  Criteres d'acceptation : 9</div>
+<div>&nbsp;</div>
+<div class="r-info">[7/7]  Generation des rapports...</div>
+<div class="r-ok">  OK  PDF  : results\app-debug_report.pdf</div>
+</div>
+<div class="scores-grid">
+<div class="score-card"><div class="score-label">Score Statique</div><div class="score-bar-wrap"><div class="score-bar bar-red" style="width:30%"></div></div><div class="score-val" style="color:var(--red)">3/10</div></div>
+<div class="score-card"><div class="score-label">MASVS-AUTH</div><div class="score-bar-wrap"><div class="score-bar bar-red" style="width:10%"></div></div><div class="score-val" style="color:var(--red)">1/10</div></div>
+<div class="score-card"><div class="score-label">MASVS-STORAGE</div><div class="score-bar-wrap"><div class="score-bar bar-red" style="width:30%"></div></div><div class="score-val" style="color:var(--red)">3/10</div></div>
+<div class="score-card"><div class="score-label">MASVS-CRYPTO</div><div class="score-bar-wrap"><div class="score-bar bar-yellow" style="width:70%"></div></div><div class="score-val" style="color:var(--yellow)">7/10</div></div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-header"><div class="section-num">8</div><div class="section-title">Erreurs courantes et solutions</div></div>
+<div class="card"><div class="card-title"><span style="color:var(--red)">●</span> "jadx n'est pas reconnu"</div><p>Terminal pas rechargé après modification du PATH. Fermez et rouvrez PowerShell. Ou rechargez avec :</p><div class="code-block"><div class="code-header"><span class="code-lang">PowerShell</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre>$env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")</pre></div></div>
+<div class="card"><div class="card-title"><span style="color:var(--red)">●</span> "No module named 'fpdf'" ou 'anthropic'</div><p>Packages non installés :</p><div class="code-block"><div class="code-header"><span class="code-lang">PowerShell</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre>pip install fpdf2 anthropic colorama requests python-dotenv</pre></div></div>
+<div class="card"><div class="card-title"><span style="color:var(--red)">●</span> "SyntaxError: Missing parentheses in call to 'print'"</div><p>Le fichier app.py original est en Python 2. Utiliser la version <code>app.py</code> corrigée fournie avec ce projet.</p></div>
+<div class="card"><div class="card-title"><span style="color:var(--red)">●</span> "No module named 'flask_sqlalchemy'"</div><p>Incompatible avec Python 3.14. Utiliser la version simplifiée de <code>app.py</code> fournie — elle n'utilise pas SQLAlchemy, seulement Flask.</p></div>
+<div class="card"><div class="card-title"><span style="color:var(--orange)">●</span> "Backend inaccessible" à l'étape 2</div><p>Le serveur Flask n'est pas lancé ou a planté. Vérifier que Terminal 1 affiche "Running on http://127.0.0.1:8888" avant de lancer l'analyse.</p></div>
+<div class="card"><div class="card-title"><span style="color:var(--orange)">●</span> "Erreur IA : No module named 'anthropic'"</div><p>Installer le module et créer le fichier .env :</p><div class="code-block"><div class="code-header"><span class="code-lang">PowerShell</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre>pip install anthropic
+echo "ANTHROPIC_API_KEY=sk-ant-VOTRE-CLE" > .env</pre></div></div>
+<div class="card"><div class="card-title"><span style="color:var(--yellow)">●</span> "Aucun cookie intercepté" à l'étape 3</div><p>Normal sans mitmproxy configuré avec l'émulateur. Utiliser <code>--demo</code> pour la présentation — les résultats sont identiques visuellement.</p></div>
+</div>
+
+<div class="section">
+<div class="section-header"><div class="section-num">9</div><div class="section-title">Checklist de vérification rapide</div></div>
+<ul class="checklist">
+<li>Python 3.10-3.13 installé (PAS 3.14)</li>
+<li>JADX 1.5.5 téléchargé et bin/ ajouté au PATH</li>
+<li>Nouveau terminal ouvert après modification PATH</li>
+<li><code>jadx --version</code> affiche 1.5.5</li>
+<li>Packages pip installés : fpdf2, anthropic, colorama, requests, python-dotenv, flask</li>
+<li>Fichier <code>.env</code> créé avec ANTHROPIC_API_KEY=sk-ant-...</li>
+<li>Dossiers <code>apks/</code>, <code>results/</code>, <code>output/</code> créés dans le projet</li>
+<li>APK <code>app-debug.apk</code> copié dans <code>apks/</code></li>
+<li>Fichiers <code>cookie_scanner.py</code>, <code>session_scanner.py</code>, <code>storage_scanner.py</code> présents</li>
+<li>Backend Flask lancé dans Terminal 1 (port 8888)</li>
+<li>Test backend : <code>curl http://localhost:8888/</code> répond OK</li>
+<li>Lancer : <code>py .\main.py --apk .\apks\app-debug.apk --demo</code></li>
+<li>Vérifier que <code>results/app-debug_report.pdf</code> est généré</li>
+</ul>
+</div>
+
+<div class="section">
+<div class="section-header"><div class="section-num">10</div><div class="section-title">Structure finale du projet</div></div>
+<div class="code-block"><div class="code-header"><span class="code-lang">Arborescence</span><button class="copy-btn" onclick="copyCode(this)">Copier</button></div><pre>mini-projet-android/
+├── <span class="kw">main.py</span>              <span class="cm"># Point d'entrée — orchestre les 7 étapes</span>
+├── <span class="kw">static_analyzer.py</span>   <span class="cm"># Décompilation JADX + scan regex</span>
+├── <span class="kw">dynamic_analyzer.py</span>  <span class="cm"># Tests HTTP login/logout</span>
+├── <span class="kw">ai_engine.py</span>         <span class="cm"># Appels API Anthropic (Claude)</span>
+├── <span class="kw">report_generator.py</span>  <span class="cm"># Génération PDF + JSON</span>
+├── <span class="kw">addon.py</span>             <span class="cm"># Plugin mitmproxy</span>
+├── <span class="str">cookie_scanner.py</span>    <span class="cm"># AJOUTÉ : flags OWASP cookies</span>
+├── <span class="str">session_scanner.py</span>   <span class="cm"># AJOUTÉ : entropie/fixation session</span>
+├── <span class="str">storage_scanner.py</span>   <span class="cm"># AJOUTÉ : SharedPrefs/Keystore</span>
+├── <span class="kw">.env</span>                 <span class="cm"># ANTHROPIC_API_KEY=sk-ant-...</span>
+├── apks/
+│   └── app-debug.apk    <span class="cm"># APK à analyser</span>
+├── results/             <span class="cm"># Rapports PDF + JSON générés ici</span>
+└── output/              <span class="cm"># Code décompilé par JADX</span></pre></div>
+</div>
+
+</div>
+
+<footer>
+<div class="footer-inner">
+<div class="footer-logo">Auth & Session Security Analyzer</div>
+<p>Guide d'installation · Mini-projet Sécurité Android · 2025-2026</p>
+<p style="margin-top:8px">En cas de problème bloquant → utiliser <code>--demo</code> pour la présentation</p>
+</div>
+</footer>
+
+<script>
+function copyCode(btn){
+  const pre=btn.closest('.code-block').querySelector('pre');
+  const text=pre.innerText||pre.textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓ Copié';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copier';btn.classList.remove('copied')},2000);
+  });
+}
+function switchTab(el,id){
+  el.closest('.section').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.closest('.section').querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+window.addEventListener('load',()=>{
+  document.querySelectorAll('.score-bar').forEach(bar=>{
+    const w=bar.style.width;bar.style.width='0%';
+    setTimeout(()=>{bar.style.width=w},300);
+  });
+});
+</script>
+</body>
+</html>
+
+Done: 338 lines

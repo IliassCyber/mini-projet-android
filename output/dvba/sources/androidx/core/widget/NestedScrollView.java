@@ -122,7 +122,7 @@ public class NestedScrollView extends FrameLayout implements h, e {
                 r6 = 4096(0x1000, float:5.74E-42)
                 r2 = 250(0xfa, float:3.5E-43)
                 if (r5 == r6) goto L53
-                r6 = 8192(0x2000, float:1.14794E-41)
+                r6 = 8192(0x2000, float:1.148E-41)
                 if (r5 == r6) goto L27
                 r6 = 16908344(0x1020038, float:2.3877386E-38)
                 if (r5 == r6) goto L27

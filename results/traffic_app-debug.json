@@ -1,17 +1,302 @@
 [
   {
-    "timestamp": "2026-05-14T20:10:34.202016+00:00",
+    "timestamp": "2026-05-17T10:50:36.947064+00:00",
     "direction": "REQUEST",
-    "method": "POST",
-    "url": "http://127.0.0.1:8888/login",
+    "method": "GET",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
     "authorization": "",
     "cookies": ""
   },
   {
-    "timestamp": "2026-05-14T20:10:34.235064+00:00",
+    "timestamp": "2026-05-17T10:50:37.043501+00:00",
     "direction": "RESPONSE",
-    "url": "http://127.0.0.1:8888/login",
-    "status_code": 200,
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T10:50:37.239115+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://www.google.com/gen_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T10:50:37.337357+00:00",
+    "direction": "RESPONSE",
+    "url": "http://www.google.com/gen_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:00:37.572727+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:00:37.687774+00:00",
+    "direction": "RESPONSE",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:00:37.778382+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://play.googleapis.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:00:37.863450+00:00",
+    "direction": "RESPONSE",
+    "url": "http://play.googleapis.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:10:38.105572+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:10:38.183432+00:00",
+    "direction": "RESPONSE",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:10:38.284978+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://play.googleapis.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:10:38.367537+00:00",
+    "direction": "RESPONSE",
+    "url": "http://play.googleapis.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:20:38.564875+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:20:38.668538+00:00",
+    "direction": "RESPONSE",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:20:38.827608+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://www.google.com/gen_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:20:38.935419+00:00",
+    "direction": "RESPONSE",
+    "url": "http://www.google.com/gen_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:30:39.197804+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:30:39.316772+00:00",
+    "direction": "RESPONSE",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:30:39.402543+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://www.google.com/gen_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:30:39.623757+00:00",
+    "direction": "RESPONSE",
+    "url": "http://www.google.com/gen_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:40:39.755268+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:40:39.890565+00:00",
+    "direction": "RESPONSE",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:40:40.029700+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://play.googleapis.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:40:40.127141+00:00",
+    "direction": "RESPONSE",
+    "url": "http://play.googleapis.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:50:40.382636+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:50:40.479399+00:00",
+    "direction": "RESPONSE",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:50:40.508408+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://www.google.com/gen_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T11:50:40.631582+00:00",
+    "direction": "RESPONSE",
+    "url": "http://www.google.com/gen_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:00:40.871107+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:00:40.989319+00:00",
+    "direction": "RESPONSE",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:00:41.165770+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://www.google.com/gen_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:00:41.267963+00:00",
+    "direction": "RESPONSE",
+    "url": "http://www.google.com/gen_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:10:41.412781+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:10:41.546862+00:00",
+    "direction": "RESPONSE",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:10:41.583767+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://www.google.com/gen_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:10:41.695991+00:00",
+    "direction": "RESPONSE",
+    "url": "http://www.google.com/gen_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:20:41.860510+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:20:41.958193+00:00",
+    "direction": "RESPONSE",
+    "url": "http://connectivitycheck.gstatic.com/generate_204",
+    "status_code": 204,
+    "set_cookie": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:20:42.066606+00:00",
+    "direction": "REQUEST",
+    "method": "GET",
+    "url": "http://play.googleapis.com/generate_204",
+    "authorization": "",
+    "cookies": ""
+  },
+  {
+    "timestamp": "2026-05-17T12:20:42.166305+00:00",
+    "direction": "RESPONSE",
+    "url": "http://play.googleapis.com/generate_204",
+    "status_code": 204,
     "set_cookie": ""
   }
 ]

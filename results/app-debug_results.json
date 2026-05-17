@@ -397,9 +397,9 @@
         "detail": "POST http://localhost:8888/login envoie username+password sans chiffrement — interceptable par MITM"
       },
       {
-        "severity": "ELEVE",
-        "type": "Absence de gestion de session",
-        "detail": "InsecureBankv2 n'emet aucun token/cookie de session. Les credentials sont retransmis a chaque requete."
+        "severity": "CRITIQUE",
+        "type": "Acces sans authentification",
+        "detail": "/getaccounts repond HTTP 200 sans mot de passe valide"
       },
       {
         "severity": "ELEVE",
@@ -413,37 +413,489 @@
       }
     ]
   },
+  "cookie": {
+    "findings": [],
+    "cookies_found": 0,
+    "score": 10.0
+  },
+  "storage": {
+    "findings": [
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\android\\support\\v4\\app\\FragmentManagerImpl.java",
+        "line": 110,
+        "detail": "Log.e(TAG, \"Failed dumpin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\android\\support\\v4\\app\\FragmentManagerImpl.java",
+        "line": 118,
+        "detail": "Log.e(TAG, \"Failed dumpin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\content\\ContextCompat.java",
+        "line": 48,
+        "detail": "getExternalStorageDirectory",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\content\\ContextCompat.java",
+        "line": 53,
+        "detail": "getExternalFilesDir",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\content\\ContextCompat.java",
+        "line": 57,
+        "detail": "getExternalFilesDir",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\content\\ContextCompat.java",
+        "line": 60,
+        "detail": "getExternalFilesDir",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\content\\ContextCompat.java",
+        "line": 62,
+        "detail": "getExternalStorageDirectory",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\content\\ContextCompat.java",
+        "line": 76,
+        "detail": "getExternalStorageDirectory",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\content\\ContextCompatFroyo.java",
+        "line": 15,
+        "detail": "getExternalFilesDir",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\content\\ContextCompatFroyo.java",
+        "line": 16,
+        "detail": "getExternalFilesDir",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\content\\ContextCompatKitKat.java",
+        "line": 15,
+        "detail": "getExternalFilesDir",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\content\\ContextCompatKitKat.java",
+        "line": 16,
+        "detail": "getExternalFilesDir",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\content\\FileProvider.java",
+        "line": 174,
+        "detail": "getExternalStorageDirectory",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\android\\support\\v4\\os\\EnvironmentCompat.java",
+        "line": 21,
+        "detail": "getExternalStorageDirectory",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\android\\support\\v7\\internal\\widget\\SpinnerCompat.java",
+        "line": 133,
+        "detail": "Log.e(TAG, \"setPopupBackgroundDrawable: incompatible spin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\android\\support\\v7\\internal\\widget\\SpinnerCompat.java",
+        "line": 642,
+        "detail": "Log.e(Spin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\android\\support\\v7\\internal\\widget\\SpinnerCompat.java",
+        "line": 647,
+        "detail": "Log.e(Spin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\android\\support\\v7\\internal\\widget\\SpinnerCompat.java",
+        "line": 652,
+        "detail": "Log.e(Spin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\android\\support\\v7\\media\\RegisteredMediaRouteProvider.java",
+        "line": 89,
+        "detail": "Log.d(TAG, this + \": Stoppin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\android\\support\\v7\\media\\RemotePlaybackClient.java",
+        "line": 377,
+        "detail": "Log.w(RemotePlaybackClient.TAG, \"Discard",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\android\\support\\v7\\media\\RemotePlaybackClient.java",
+        "line": 385,
+        "detail": "Log.w(RemotePlaybackClient.TAG, \"Discard",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\android\\support\\v7\\media\\RemotePlaybackClient.java",
+        "line": 399,
+        "detail": "Log.w(RemotePlaybackClient.TAG, \"Discard",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\android\\support\\v7\\media\\RemotePlaybackClient.java",
+        "line": 413,
+        "detail": "Log.w(RemotePlaybackClient.TAG, \"Discard",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\com\\android\\insecurebankv2\\DoLogin.java",
+        "line": 116,
+        "detail": "Log.d(\"Successful Login:\", \", account=\" + DoLogin.this.username + \":\" + DoLogin.this.password",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\com\\android\\insecurebankv2\\DoTransfer.java",
+        "line": 176,
+        "detail": "getExternalStorageDirectory",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\com\\android\\insecurebankv2\\DoTransfer.java",
+        "line": 195,
+        "detail": "getExternalStorageDirectory",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\com\\android\\insecurebankv2\\ViewStatement.java",
+        "line": 25,
+        "detail": "getExternalStorageDirectory",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\com\\android\\insecurebankv2\\ViewStatement.java",
+        "line": 29,
+        "detail": "getExternalStorageDirectory",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\com\\google\\android\\gms\\appinvite\\AppInviteReferral.java",
+        "line": 74,
+        "detail": "Log.w(\"AppIn",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\com\\google\\android\\gms\\appinvite\\AppInviteReferral.java",
+        "line": 77,
+        "detail": "Log.e(\"AppIn",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\com\\google\\android\\gms\\common\\api\\zzm.java",
+        "line": 115,
+        "detail": "Log.w(\"GmsSupportLifecycleFragment\", \"Unresolved error while connecting client. Stoppin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\com\\google\\android\\gms\\common\\api\\zzn.java",
+        "line": 150,
+        "detail": "Log.w(\"GmsSupportLoaderLifecycleFragment\", \"Unresolved error while connecting client. Stoppin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\com\\google\\android\\gms\\gcm\\GcmNetworkManager.java",
+        "line": 72,
+        "detail": "Log.e(\"GcmNetworkManager\", \"Google Play Services is not available, droppin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\com\\google\\android\\gms\\gcm\\GoogleCloudMessaging.java",
+        "line": 55,
+        "detail": "Log.w(GoogleCloudMessaging.INSTANCE_ID_SCOPE, \"Droppin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\com\\google\\android\\gms\\iid\\InstanceIDListenerService.java",
+        "line": 174,
+        "detail": "Log.w(\"InstanceID\", \"Failed to send pin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_LOG_SENSITIVE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Données sensibles dans les logs",
+        "file": "sources\\com\\google\\android\\gms\\iid\\zzc.java",
+        "line": 290,
+        "detail": "Log.w(\"InstanceID/Rpc\", \"Droppin",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      },
+      {
+        "id": "STORAGE_EXTERNAL",
+        "masvs": "MASVS-STORAGE-1",
+        "severity": "CRITIQUE",
+        "type": "Écriture sur stockage externe",
+        "file": "sources\\com\\google\\android\\gms\\internal\\zzcb.java",
+        "line": 47,
+        "detail": "getExternalStorageDirectory",
+        "description": "Des données sont écrites sur le stockage externe — accessible par toute application sans permission.",
+        "fix": "Utiliser uniquement le stockage interne (getFilesDir)."
+      },
+      {
+        "id": "STORAGE_NO_KEYSTORE",
+        "masvs": "MASVS-STORAGE-2",
+        "severity": "ELEVE",
+        "type": "Absence d'Android Keystore",
+        "file": "— (non détecté dans les sources)",
+        "line": 0,
+        "detail": "KeyStore.getInstance(\"AndroidKeyStore\") introuvable dans le code",
+        "description": "Des données sensibles sont loggées avec Log.d/e/i — lisibles via logcat même sur appareil non rooté.",
+        "fix": "Supprimer tout Log contenant des données d'auth en production (BuildConfig.DEBUG)."
+      }
+    ],
+    "uses_encrypted_prefs": false,
+    "uses_keystore": false,
+    "files_scanned": 2918,
+    "score": 0,
+    "adb_result": null
+  },
+  "session": {
+    "mode": "SESSION_SCANNER",
+    "session_id_detected": null,
+    "findings": [
+      {
+        "id": "SESSION_NO_ID",
+        "masvs": "MASVS-AUTH-1",
+        "severity": "CRITIQUE",
+        "type": "Aucun Session ID détecté",
+        "detail": "Le serveur n'émet pas de cookie de session identifiable.",
+        "description": "L'application ne gère pas de sessions côté serveur."
+      },
+      {
+        "id": "SESSION_LOGOUT_SKIPPED",
+        "severity": "INFO",
+        "type": "Test logout ignoré",
+        "detail": "Login échoué — backend inaccessible ou credentials incorrects."
+      }
+    ]
+  },
   "ai": {
     "checklist": [
-      "- [ ] [MASVS-AUTH-1] Vérifier que les credentials utilisateur (nom d'utilisateur et mot de passe) sont transmis exclusivement via HTTPS/TLS et jamais en clair sur HTTP",
-      "- [ ] [MASVS-AUTH-2] Vérifier que l'application émet et gère un cookie de session valide (JSESSIONID) après authentification, sans retransmettre les credentials à chaque requête",
-      "- [ ] [MASVS-AUTH-3] Vérifier que le cookie de session est configuré avec les attributs Secure, HttpOnly et SameSite afin de prévenir l'interception et les attaques XSS/CSRF",
-      "- [ ] [MASVS-AUTH-4] Vérifier que le serveur invalide effectivement la session côté serveur lors de la déconnexion de l'utilisateur, et non pas seulement côté client",
-      "- [ ] [MASVS-AUTH-5] Vérifier qu'un mécanisme de protection contre les attaques par force brute est en place (verrouillage de compte, délai exponentiel ou CAPTCHA après N tentatives échouées)",
-      "- [ ] [MASVS-AUTH-6] Vérifier que les sessions disposent d'une durée de vie maximale et d'un timeout d'inactivité configurés et appliqués côté serveur",
-      "- [ ] [MASVS-AUTH-7] Vérifier que les tokens/cookies de session sont régénérés après chaque authentification réussie afin de prévenir les attaques de fixation de session",
-      "- [ ] [MASVS-STORAGE-1] Vérifier qu'aucun credential (mot de passe, identifiant) n'est stocké en clair dans le code source, les logs ou les fichiers de configuration de l'application",
-      "- [ ] [MASVS-STORAGE-2] Vérifier que les cookies de session ne sont pas persistés dans un stockage non sécurisé (SharedPreferences non chiffrées, base de données SQLite sans protection, logs système)",
-      "- [ ] [MASVS-NETWORK-1] Vérifier qu'une Network Security Configuration (NSC) est définie et interdit explicitement tout trafic HTTP en clair pour l'ensemble des domaines applicatifs",
-      "- [ ] [MASVS-NETWORK-2] Vérifier que le certificat TLS du serveur est validé correctement par l'application et qu'aucun mécanisme de contournement de validation (acceptation de tous les certificats) n'est présent",
-      "- [ ] [MASVS-CRYPTO-1] Vérifier que l'application n'utilise pas d'algorithmes de hachage faibles ou obsolètes (MD5, SHA-1) pour toute opération liée à la sécurité (intégrité, authentification, stockage de mots de passe)",
-      "- [ ] [MASVS-CRYPTO-2] Vérifier qu'aucune clé, secret ou mot de passe n'est codé en dur dans le code source ou dans les ressources compilées de l'application",
-      "- [ ] [MASVS-CODE-1] Vérifier qu'aucune information sensible (credentials, tokens de session, données personnelles) n'est écrite dans les logs système Android (Log.d, Log.i, Log.e, etc.) en environnement de production"
+      "- [ ] [MASVS-AUTH-1] Vérifier que l'authentification par SESSION_COOKIE impose un transport exclusivement chiffré (HTTPS/TLS) pour la transmission des identifiants et du cookie de session, sans aucun fallback HTTP",
+      "- [ ] [MASVS-AUTH-2] Vérifier que le cookie de session (JSESSIONID) est invalidé côté serveur lors de la déconnexion explicite de l'utilisateur, rendant le token inutilisable après logout",
+      "- [ ] [MASVS-AUTH-3] Vérifier que le mécanisme d'authentification implémente une protection contre les attaques par force brute (blocage temporaire, CAPTCHA, limitation du taux de requêtes) après un nombre défini de tentatives échouées",
+      "- [ ] [MASVS-AUTH-4] Vérifier que le cookie de session possède un délai d'expiration (timeout) défini côté serveur et que les sessions inactives sont automatiquement invalidées après une période raisonnable",
+      "- [ ] [MASVS-AUTH-5] Vérifier qu'une nouvelle session (rotation de cookie) est générée après chaque authentification réussie afin de prévenir les attaques par fixation de session",
+      "- [ ] [MASVS-AUTH-6] Vérifier que les endpoints sensibles (ex. : /getaccounts) requièrent impérativement une session authentifiée valide et retournent HTTP 401/403 en l'absence de cookie valide",
+      "- [ ] [MASVS-NETWORK-1] Vérifier que toutes les communications réseau de l'application utilisent exclusivement TLS 1.2 ou supérieur, et qu'aucune URL en HTTP clair n'est présente dans le code applicatif métier",
+      "- [ ] [MASVS-NETWORK-2] Vérifier que la configuration Network Security Config interdit explicitement le trafic en clair (cleartextTrafficPermitted=\"false\") et définit un certificate pinning pour les domaines critiques",
+      "- [ ] [MASVS-CRYPTO-1] Vérifier qu'aucun algorithme de hachage faible (MD5, SHA-1) n'est utilisé pour des opérations liées à la sécurité (intégrité des sessions, stockage de mots de passe, signatures)",
+      "- [ ] [MASVS-CRYPTO-2] Vérifier qu'aucun secret, mot de passe ou clé cryptographique n'est codé en dur dans le code source ou les ressources de l'application",
+      "- [ ] [MASVS-STORAGE-1] Vérifier que les cookies de session sont stockés avec les attributs Secure, HttpOnly et SameSite=Strict, et ne sont jamais persistés dans des fichiers journaux, SharedPreferences non chiffrées ou bases de données locales",
+      "- [ ] [MASVS-STORAGE-2] Vérifier qu'aucune information d'identification sensible (nom d'utilisateur, mot de passe, token de session) n'est écrite dans les logs système (Logcat) en environnement de production",
+      "- [ ] [MASVS-AUTH-7] Vérifier que le flux de déconnexion (\"logout\") détruit effectivement la session côté serveur et redirige l'utilisateur vers l'écran de connexion en effaçant les données de session locales",
+      "- [ ] [MASVS-NETWORK-3] Vérifier que le cookie de session n'est jamais transmis via des paramètres d'URL (query string) susceptibles d'être capturés dans les journaux de proxy ou les en-têtes Referer"
     ],
     "acceptance_criteria": [
-      "Le système DOIT transmettre l'ensemble des données d'authentification (identifiant, mot de passe, cookie de session) exclusivement via des canaux chiffrés TLS/HTTPS afin de prévenir toute interception par attaque Man-in-the-Middle.",
-      "Le système NE DOIT PAS retransmettre les credentials (nom d'utilisateur et mot de passe) à chaque requête HTTP afin d'éviter l'exposition répétée de données sensibles sur le réseau et de respecter le principe de session stateful.",
-      "Le système DOIT invalider le cookie de session côté serveur lors de toute opération de déconnexion afin de garantir qu'une session terminée ne puisse être réutilisée par un attaquant ayant capturé le cookie.",
-      "Le système DOIT bloquer ou ralentir de manière significative l'accès au compte après un maximum de 5 tentatives d'authentification échouées consécutives afin de prévenir les attaques par force brute sur les comptes utilisateurs.",
-      "Le système NE DOIT PAS écrire d'informations sensibles telles que les identifiants, mots de passe ou tokens de session dans les journaux système Android (Logcat) afin d'éviter leur extraction par des applications tierces ou lors d'une analyse forensique de l'appareil.",
-      "Le système NE DOIT PAS utiliser l'algorithme MD5 ou tout autre algorithme cryptographique obsolète pour des opérations liées à la sécurité afin de garantir l'intégrité et la confidentialité des données protégées.",
-      "Le système DOIT régénérer un nouveau cookie de session immédiatement après chaque authentification réussie afin de prévenir les attaques de fixation de session (Session Fixation).",
-      "Le système DOIT configurer les cookies de session avec les attributs Secure, HttpOnly et une politique SameSite stricte afin de réduire la surface d'attaque liée au vol de session par interception réseau ou scripts malveillants.",
-      "Le système NE DOIT PAS contenir de secrets, mots de passe ou clés cryptographiques codés en dur dans le code source ou les ressources de l'application afin d'éviter leur extraction lors d'une rétro-ingénierie du binaire APK."
+      "Le système DOIT transmettre l'ensemble des identifiants et cookies de session exclusivement via HTTPS avec TLS 1.2 minimum afin de prévenir toute interception par attaque de type Man-in-the-Middle.",
+      "Le système NE DOIT PAS autoriser l'accès à un endpoint authentifié (tel que /getaccounts) sans présentation d'un cookie de session valide et actif afin d'empêcher tout accès non autorisé aux données utilisateur.",
+      "Le système DOIT invalider définitivement le cookie de session côté serveur lors de chaque opération de déconnexion afin de garantir qu'un token capturé ne puisse pas être réutilisé.",
+      "Le système DOIT générer un nouveau cookie de session après chaque authentification réussie afin de neutraliser les attaques par fixation de session (session fixation).",
+      "Le système NE DOIT PAS consigner d'informations d'identification sensibles (nom d'utilisateur, mot de passe, token) dans les journaux applicatifs ou système afin d'éviter leur exposition lors d'un accès physique ou logique à l'appareil.",
+      "Le système DOIT bloquer temporairement ou limiter les tentatives de connexion après un maximum de 5 échecs consécutifs afin de résister aux attaques par force brute ou par dictionnaire.",
+      "Le système NE DOIT PAS contenir de secrets, mots de passe ou clés cryptographiques codés en dur dans le code source ou les ressources compilées afin d'éviter leur extraction par ingénierie inverse.",
+      "Le système DOIT appliquer un délai d'expiration de session (idle timeout et absolute timeout) défini et contrôlé côté serveur afin de limiter la fenêtre d'exploitation d'un cookie de session volé.",
+      "Le système NE DOIT PAS utiliser des algorithmes cryptographiques obsolètes tels que MD5 ou SHA-1 pour toute opération liée à la sécurité afin de garantir l'intégrité et la confidentialité des données traitées."
     ],
-    "summary": "L'application analysée est InsecureBankv2, une application Android de démonstration simulant une application bancaire mobile utilisant un mécanisme d'authentification par cookie de session (SESSION_COOKIE). L'audit de sécurité conduit selon le référentiel OWASP MASVS v2, combinant analyses statique et dynamique, révèle un niveau de risque global évalué comme **critique**, avec des scores particulièrement alarmants dans les domaines réseau (0/10) et stockage (2/10). Les vulnérabilités les plus graves incluent la transmission des credentials en clair sur HTTP sans aucun chiffrement TLS, l'absence totale de gestion de session côté serveur (aucun cookie JSESSIONID émis, retransmission des identifiants à chaque requête), des secrets et mots de passe codés en dur dans le code source, ainsi que la journalisation des credentials utilisateur dans les logs Android accessibles à toute application tierce disposant de la permission adéquate. L'impact potentiel pour les utilisateurs est majeur : un attaquant positionné sur le réseau peut intercepter sans effort les identifiants bancaires, usurper des sessions, accéder aux comptes et effectuer des opérations frauduleuses, sans nécessiter de compétences techniques avancées. Les trois recommandations prioritaires sont les suivantes : premièrement, migrer immédiatement l'intégralité des communications vers HTTPS avec validation stricte du certificat TLS et déploiement d'une Network Security Configuration interdisant le trafic HTTP en clair ; deuxièmement, implémenter une gestion de session conforme aux standards (émission d'un cookie de session sécurisé avec les attributs Secure, HttpOnly et SameSite, invalidation serveur à la déconnexion, timeout d'inactivité) ; troisièmement, supprimer toutes les occurrences de credentials codés en dur et désactiver toute journalisation d'informations sensibles avant toute mise en production de l'application.",
+    "summary": "L'application Android analysée, InsecureBankv2, est une application bancaire mobile délibérément vulnérable utilisant un mécanisme de gestion de sessions par cookies (SESSION_COOKIE) pour l'authentification de ses utilisateurs. L'audit a révélé des vulnérabilités critiques multiples mettant en danger l'intégralité de la chaîne de sécurité : les identifiants (nom d'utilisateur et mot de passe) sont transmis en clair via HTTP sans aucun chiffrement, rendant chaque authentification interceptable par un attaquant positionné en Man-in-the-Middle, et des endpoints sensibles comme /getaccounts sont accessibles sans authentification valide, exposant directement les données bancaires des utilisateurs. Le niveau de risque global est évalué comme critique, avec des scores MASVS de 0/10 pour les domaines Authentification et Réseau, et 2/10 pour le Stockage et la Cryptographie, traduisant une absence quasi-totale de contrôles de sécurité fondamentaux. L'impact potentiel est sévère : un attaquant peut capturer les identifiants en transit, accéder librement aux comptes sans authentification, mener des attaques par force brute sans restriction, et exploiter des sessions non expirées faute de mécanisme de déconnexion côté serveur. Les trois recommandations prioritaires sont les suivantes : premièrement, migrer immédiatement l'ensemble des communications vers HTTPS avec TLS 1.2 minimum et activer le certificate pinning ; deuxièmement, implémenter une gestion de session robuste côté serveur incluant invalidation au logout, rotation des tokens et timeout d'inactivité ; troisièmement, supprimer tout secret codé en dur et toute journalisation d'identifiants, puis déployer une protection anti-force brute sur les endpoints d'authentification.",
     "domain_scores": {
-      "AUTH": 6,
+      "AUTH": 0,
       "STORAGE": 2,
       "NETWORK": 0,
       "CRYPTO": 2
