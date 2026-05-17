@@ -178,7 +178,7 @@ cd "Android-InsecureBankv2\AndroLabServer"
 pip install cheroot simplejson flask flask-sqlalchemy
 python app.py
 ```
-Credentials : `dinesh / dinesh123`
+Credentials : `dinesh / Dinesh@123$`
 
 **Configurer l'émulateur Android :**
 ```powershell
@@ -357,7 +357,7 @@ Le fichier PDF est ouvert dans un lecteur (Acrobat, navigateur...). **Fermer le 
 ### app-debug.apk — Invalid Credentials dans l'émulateur
 1. Vérifier que le tunnel ADB est actif : `adb reverse tcp:8888 tcp:8888`
 2. Vérifier que le backend tourne : `python app.py`
-3. Les credentials sont : `dinesh / dinesh123` (simplifié depuis `Dinesh@123$`)
+3. Les credentials sont : `dinesh / Dinesh@123$` (simplifié depuis `Dinesh@123$`)
 
 ---
 

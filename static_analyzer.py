@@ -175,7 +175,7 @@ def decompile_apk(apk_path: str, output_dir: str) -> int:
         subprocess.run(
             [jadx, "-d", output_dir, "--no-res", apk_path],
             capture_output=True,
-            text=True,
+            #text=True,
             timeout=180,
         )
     except subprocess.TimeoutExpired:
@@ -191,7 +191,7 @@ def decompile_apk(apk_path: str, output_dir: str) -> int:
             subprocess.run(
                 [jadx, "-d", output_dir, apk_path],
                 capture_output=True,
-                text=True,
+                #text=True,
                 timeout=180,
             )
             java_files = list(Path(output_dir).rglob("*.java"))
@@ -373,10 +373,6 @@ def compute_score(findings: list) -> int:
 # ---------------------------------------------------------------------------
 
 def analyze(apk_path: str, output_dir: str) -> dict:
-    """
-    Décompile l'APK puis scanne les sources.
-    Retourne un dict : { auth_type, findings, score, files_scanned }.
-    """
     files_count = decompile_apk(apk_path, output_dir)
 
     if files_count == 0:
@@ -385,32 +381,20 @@ def analyze(apk_path: str, output_dir: str) -> dict:
             "findings": [],
             "score": 10,
             "files_scanned": 0,
-            "error": "JADX n'a produit aucun fichier source — APK potentiellement corrompu",
+            "error": "JADX n'a produit aucun fichier source",
         }
 
     src_findings, jwt_found, session_found = scan_sources(output_dir)
     manifest_findings = scan_manifest(output_dir)
     all_findings = src_findings + manifest_findings
 
+    # Détection simple — PAS de OAUTH2 ici (trop de faux positifs GMS)
     if jwt_found:
         auth_type = "JWT"
     elif session_found:
         auth_type = "SESSION_COOKIE"
     else:
-        # Dernier recours : chercher des indices dans les noms de fichiers
-        for root, _dirs, files in os.walk(output_dir):
-            for fname in files:
-                if re.search(r"jwt|token", fname, re.IGNORECASE):
-                    auth_type = "JWT"
-                    break
-                if re.search(r"session|cookie", fname, re.IGNORECASE):
-                    auth_type = "SESSION_COOKIE"
-                    break
-            else:
-                continue
-            break
-        else:
-            auth_type = "UNKNOWN"
+        auth_type = "UNKNOWN"
 
     return {
         "auth_type": auth_type,

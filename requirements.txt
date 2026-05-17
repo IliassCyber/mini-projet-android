@@ -4,3 +4,4 @@ requests==2.32.3
 fpdf2==2.8.7
 python-dotenv==1.2.2
 colorama==0.4.6
+PyJWT==2.12.1

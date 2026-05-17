@@ -15,12 +15,51 @@ import sys
 import shutil
 from pathlib import Path
 
+# ---------------------------------------------------------------------------
+# Imports dynamiques sécurisés (évite crash si module absent)
+# ---------------------------------------------------------------------------
+try:
+    from dynamic_analyzer import (
+        analyze_token_lifetime,
+        test_expired_token_rejection,
+        test_session_fixation_jwt,
+        test_session_fixation_http,
+    )
+    _DYNAMIC_EXTRAS = True
+except ImportError:
+    _DYNAMIC_EXTRAS = False
+
+try:
+    from ai_engine import (
+        generate_oauth2_checklist,
+        detect_auth_type_extended,
+        generate_structured_acceptance_criteria,
+    )
+    _AI_EXTRAS = True
+except ImportError:
+    _AI_EXTRAS = False
+
 from colorama import Fore, Style, init as colorama_init
 
 colorama_init(autoreset=True)
 
+
 # ---------------------------------------------------------------------------
-# Données de démonstration (fixtures)
+# Helper login DVBA pour les tests de fixation JWT
+# ---------------------------------------------------------------------------
+
+def _try_login_simple(base_url: str):
+    """Wrapper login DVBA pour les tests de fixation de session."""
+    try:
+        from dynamic_analyzer import _try_login
+        token, _ = _try_login(base_url)
+        return token
+    except Exception:
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Données de démonstration (fixtures) — FUSION Hafssa + Iliass
 # ---------------------------------------------------------------------------
 
 DEMO_DATA = {
@@ -42,7 +81,7 @@ DEMO_DATA = {
                  "file": "com/dvba/Config.java",            "line": 15,
                  "detail": 'jwt_secret = "mysupersecretkey2024"',
                  "description": "Cle secrete JWT exposee"},
-                {"id": "WEAK_CRYPTO_AES_ECB","severity": "ELEVE", "type": "AES/ECB faible",
+                {"id": "WEAK_CRYPTO_AES_ECB", "severity": "ELEVE", "type": "AES/ECB faible",
                  "file": "com/dvba/CryptoUtils.java",       "line": 33,
                  "detail": 'Cipher.getInstance("AES/ECB/PKCS5")',
                  "description": "Mode ECB vulnerable"},
@@ -50,11 +89,11 @@ DEMO_DATA = {
                  "file": "com/dvba/LoginActivity.java",     "line": 61,
                  "detail": 'Log.d("AUTH", "token=" + jwt)',
                  "description": "Token JWT logue"},
-                {"id": "SHARED_PREFS_TOKEN","severity": "ELEVE",  "type": "Token SharedPreferences",
+                {"id": "SHARED_PREFS_TOKEN", "severity": "ELEVE", "type": "Token SharedPreferences",
                  "file": "com/dvba/SessionManager.java",    "line": 29,
                  "detail": 'prefs.putString("jwt_token", token)',
                  "description": "Token stocke en clair"},
-                {"id": "NO_SSL_VALIDATION","severity": "MOYEN",   "type": "SSL desactive",
+                {"id": "NO_SSL_VALIDATION", "severity": "MOYEN",  "type": "SSL desactive",
                  "file": "com/dvba/NetworkClient.java",     "line": 55,
                  "detail": "TrustAllCerts — X509TrustManager vide",
                  "description": "Certificat SSL non verifie"},
@@ -76,6 +115,38 @@ DEMO_DATA = {
                  "detail": "Champ 'exp' absent — le token ne expire jamais"},
                 {"severity": "ELEVE",    "type": "Pas de rotation des refresh tokens",
                  "detail": "Le meme refresh token est accepte deux fois consecutives"},
+            ],
+        },
+        # ── Modules Hafssa ────────────────────────────────────────────────
+        "cookie": {
+            "findings": [],
+            "cookies_found": 0,
+            "score": 10,
+        },
+        "storage": {
+            "findings": [
+                {"id": "STORAGE_SHARED_PREFS_TOKEN", "masvs": "MASVS-STORAGE-1",
+                 "severity": "CRITIQUE", "type": "Token dans SharedPreferences non chiffre",
+                 "file": "com/dvba/SessionManager.java", "line": 29,
+                 "detail": 'prefs.putString("jwt_token", token)',
+                 "description": "Token JWT stocke en clair", "fix": "Utiliser EncryptedSharedPreferences"},
+                {"id": "STORAGE_NO_KEYSTORE", "masvs": "MASVS-STORAGE-2",
+                 "severity": "ELEVE", "type": "Absence d'Android Keystore",
+                 "file": "— (non detecte)", "line": 0,
+                 "detail": 'KeyStore.getInstance("AndroidKeyStore") introuvable',
+                 "description": "Aucun Keystore detecte", "fix": "Utiliser Android Keystore"},
+            ],
+            "uses_encrypted_prefs": False,
+            "uses_keystore": False,
+            "score": 5,
+        },
+        "session": {
+            "mode": "SESSION_SCANNER",
+            "session_id_detected": None,
+            "findings": [
+                {"id": "SESSION_NO_ID", "masvs": "MASVS-AUTH-1",
+                 "severity": "INFO", "type": "Application JWT — pas de session cookie",
+                 "detail": "DVBA utilise JWT, pas de JSESSIONID."},
             ],
         },
         "ai": {
@@ -106,6 +177,8 @@ DEMO_DATA = {
                 "Le systeme DOIT stocker les tokens dans Android EncryptedSharedPreferences afin de proteger les donnees au repos.",
                 "Le systeme NE DOIT PAS logger des donnees d'authentification afin de prevenir leur extraction depuis les logs.",
             ],
+            "oauth2_checklist": [],
+            "structured_acceptance_criteria": [],
             "summary": (
                 "L'analyse de l'application DVBA revele un niveau de risque CRITIQUE "
                 "sur l'ensemble des domaines de securite MASVS. Des tokens JWT sans "
@@ -129,33 +202,33 @@ DEMO_DATA = {
             "files_scanned": 31,
             "findings": [
                 {"id": "HARDCODED_SECRET", "severity": "CRITIQUE", "type": "Mot de passe en dur",
-                 "file": "com/insecurebank/ServerDetails.java","line": 10,
+                 "file": "com/insecurebank/ServerDetails.java", "line": 10,
                  "detail": 'password = "Passw0rd"',
                  "description": "Mot de passe serveur code en dur"},
                 {"id": "LOG_CREDENTIALS",  "severity": "ELEVE",   "type": "Identifiants dans logs",
-                 "file": "com/insecurebank/LoginActivity.java","line": 89,
+                 "file": "com/insecurebank/LoginActivity.java", "line": 89,
                  "detail": 'Log.d("LOGIN", username + ":" + password)',
                  "description": "Identifiants logues en clair"},
-                {"id": "NO_SSL_VALIDATION","severity": "MOYEN",   "type": "SSL contourne",
-                 "file": "com/insecurebank/MySSLSocketFactory.java","line": 22,
+                {"id": "NO_SSL_VALIDATION", "severity": "MOYEN",  "type": "SSL contourne",
+                 "file": "com/insecurebank/MySSLSocketFactory.java", "line": 22,
                  "detail": "X509TrustManager — checkServerTrusted vide",
                  "description": "Validation SSL desactivee"},
                 {"id": "DEBUG_ENABLED",    "severity": "MOYEN",   "type": "Mode debug actif",
-                 "file": "AndroidManifest.xml","line": 3,
+                 "file": "AndroidManifest.xml", "line": 3,
                  "detail": 'android:debuggable="true"',
                  "description": "Application en mode debug"},
-                {"id": "EXPORTED_ACTIVITY","severity": "MOYEN",   "type": "Activite exportee",
-                 "file": "AndroidManifest.xml","line": 18,
+                {"id": "EXPORTED_ACTIVITY", "severity": "MOYEN",  "type": "Activite exportee",
+                 "file": "AndroidManifest.xml", "line": 18,
                  "detail": 'android:exported="true"',
                  "description": "Activite accessible depuis d'autres apps"},
                 {"id": "BACKUP_ENABLED",   "severity": "MOYEN",   "type": "Sauvegarde ADB activee",
-                 "file": "AndroidManifest.xml","line": 6,
+                 "file": "AndroidManifest.xml", "line": 6,
                  "detail": 'android:allowBackup="true"',
                  "description": "Donnees extractibles via adb backup"},
             ],
         },
         "dynamic": {
-            "mode": "MITMPROXY",
+            "mode": "API_DIRECT",
             "logout_effective": False,
             "token_lifetime_minutes": 1440,
             "rotation_enforced": None,
@@ -164,6 +237,68 @@ DEMO_DATA = {
                  "detail": "JSESSIONID reste valide apres /logout (HTTP 200 sur /getaccounts)"},
                 {"severity": "ELEVE",    "type": "Duree de session excessive",
                  "detail": "Session valide 1440 minutes (24 heures)"},
+            ],
+        },
+        # ── Modules Hafssa ────────────────────────────────────────────────
+        "cookie": {
+            "findings": [
+                {"id": "COOKIE_NO_HTTPONLY", "masvs": "MASVS-NETWORK-2",
+                 "severity": "CRITIQUE", "type": "Cookie sans flag HttpOnly",
+                 "detail": "Cookie 'session' — source : POST /login",
+                 "description": "Cookie accessible via JavaScript — vol XSS possible",
+                 "fix": "Ajouter HttpOnly : Set-Cookie: session=...; HttpOnly"},
+                {"id": "COOKIE_NO_SECURE", "masvs": "MASVS-NETWORK-1",
+                 "severity": "ELEVE", "type": "Cookie sans flag Secure",
+                 "detail": "Cookie 'session' transmissible en HTTP clair",
+                 "fix": "Ajouter Secure : Set-Cookie: session=...; Secure"},
+                {"id": "COOKIE_NO_SAMESITE", "masvs": "MASVS-NETWORK-2",
+                 "severity": "ELEVE", "type": "Cookie sans SameSite",
+                 "detail": "Risque CSRF — cookie envoye dans requetes cross-site",
+                 "fix": "Ajouter SameSite=Lax minimum"},
+            ],
+            "cookies_found": 1,
+            "score": 6.25,
+        },
+        "storage": {
+            "findings": [
+                {"id": "STORAGE_SHARED_PREFS_TOKEN", "masvs": "MASVS-STORAGE-1",
+                 "severity": "CRITIQUE", "type": "Token dans SharedPreferences non chiffre",
+                 "file": "com/android/insecurebankv2/LoginActivity.java", "line": 112,
+                 "detail": 'prefs.putString("username", username)',
+                 "description": "Credentials stockes en clair",
+                 "fix": "Utiliser EncryptedSharedPreferences"},
+                {"id": "STORAGE_LOG_SENSITIVE", "masvs": "MASVS-STORAGE-2",
+                 "severity": "ELEVE", "type": "Donnees sensibles dans les logs",
+                 "file": "com/android/insecurebankv2/DoLogin.java", "line": 89,
+                 "detail": 'Log.d("Successful Login:", account + ":" + password)',
+                 "description": "Credentials logues — lisibles via adb logcat",
+                 "fix": "Supprimer tout Log contenant des credentials"},
+                {"id": "STORAGE_NO_KEYSTORE", "masvs": "MASVS-STORAGE-2",
+                 "severity": "ELEVE", "type": "Absence d'Android Keystore",
+                 "file": "— (non detecte)", "line": 0,
+                 "detail": "Aucun usage de KeyStore Android detecte",
+                 "fix": "Utiliser Android Keystore pour les cles"},
+            ],
+            "uses_encrypted_prefs": False,
+            "uses_keystore": False,
+            "score": 3,
+        },
+        "session": {
+            "mode": "SESSION_SCANNER",
+            "session_id_detected": "abc123xyz",
+            "findings": [
+                {"id": "SESSION_NO_TIMEOUT", "masvs": "MASVS-AUTH-2",
+                 "severity": "ELEVE", "type": "Session sans timeout cote client",
+                 "detail": "Cookie de session sans Max-Age ni Expires",
+                 "fix": "Definir Max-Age <= 1800 (30 min)"},
+                {"id": "SESSION_LOGOUT_INSUFFICIENT", "masvs": "MASVS-AUTH-2",
+                 "severity": "CRITIQUE", "type": "Session toujours valide apres logout",
+                 "detail": "HTTP 200 sur /getaccounts apres logout",
+                 "fix": "Appeler session.invalidate() cote serveur"},
+                {"id": "SESSION_ID_WEAK", "masvs": "MASVS-AUTH-1",
+                 "severity": "ELEVE", "type": "Session ID de longueur insuffisante",
+                 "detail": "Longueur = 9 chars (OWASP recommande >= 32)",
+                 "fix": "Generer des SID >= 128 bits avec CSPRNG"},
             ],
         },
         "ai": {
@@ -193,6 +328,8 @@ DEMO_DATA = {
                 "Le systeme DOIT desactiver les sauvegardes ADB afin d'empecher l'extraction des donnees sensibles.",
                 "Le systeme DOIT regenerer l'identifiant de session apres chaque authentification reussie afin de prevenir la fixation de session.",
             ],
+            "oauth2_checklist": [],
+            "structured_acceptance_criteria": [],
             "summary": (
                 "L'analyse d'InsecureBankv2 revele des vulnerabilites critiques dans la "
                 "gestion des sessions basees sur des cookies JSESSIONID. Le cookie de session "
@@ -240,30 +377,46 @@ def _err(msg: str):
 
 def _finding_line(f: dict):
     sev = f.get("severity", "INFO")
+    # Normaliser les sévérités anglaises vers français pour l'affichage
+    sev_display = {
+        "CRITICAL": "CRITIQUE",
+        "HIGH":     "ELEVE",
+        "MEDIUM":   "MOYEN",
+        "LOW":      "INFO",
+        "PASS":     "PASS",
+    }.get(sev, sev)
+    # Ne pas afficher les PASS et INFO vides
+    if sev_display in ("PASS", "INFO") and not f.get("type"):
+        return
     color = {
         "CRITIQUE": Fore.RED,
         "ELEVE":    Fore.YELLOW,
         "MOYEN":    Fore.WHITE,
-    }.get(sev, Fore.CYAN)
+    }.get(sev_display, Fore.CYAN)
     print(
-        f"    {color}[{sev}]{Style.RESET_ALL}  "
-        f"{f.get('type', '')}  —  {f.get('file', '')}:{f.get('line','')}"
+        f"    {color}[{sev_display}]{Style.RESET_ALL}  "
+        f"{f.get('type', '')}  —  {f.get('file', '')}:{f.get('line', '')}"
     )
 
 
 def _summary_table(results: dict, json_path: str, pdf_path: str):
-    static  = results.get("static", {})
+    static  = results.get("static",  {})
     dynamic = results.get("dynamic", {})
-    ai      = results.get("ai", {})
-    score   = static.get("score", 0)
-    total_f = len(static.get("findings", [])) + len(dynamic.get("findings", []))
+    ai      = results.get("ai",      {})
+    cookie  = results.get("cookie",  {})
+    storage = results.get("storage", {})
+    session = results.get("session", {})
 
-    if score < 4:
-        score_color = Fore.RED
-    elif score < 7:
-        score_color = Fore.YELLOW
-    else:
-        score_color = Fore.GREEN
+    score   = static.get("score", 0)
+    total_f = (
+        len(static.get("findings",  []))
+        + len(dynamic.get("findings", []))
+        + len(cookie.get("findings",  []))
+        + len(storage.get("findings", []))
+        + len(session.get("findings", []))
+    )
+
+    score_color = Fore.RED if score < 4 else (Fore.YELLOW if score < 7 else Fore.GREEN)
 
     print()
     print(Fore.CYAN + "=" * 62)
@@ -271,17 +424,33 @@ def _summary_table(results: dict, json_path: str, pdf_path: str):
     print(Fore.CYAN + "=" * 62)
 
     rows = [
-        ("Type d'auth",          static.get("auth_type", "INCONNU")),
-        ("Fichiers analyses",    str(static.get("files_scanned", "N/A"))),
-        ("Vulnerabilites totales",str(total_f)),
-        ("Score global",         f"{score_color}{score}/10{Style.RESET_ALL}"),
+        ("Type d'auth",           static.get("auth_type", "INCONNU")),
+        ("Fichiers analyses",     str(static.get("files_scanned", "N/A"))),
+        ("Vulnerabilites totales", str(total_f)),
+        ("Score statique",        f"{score_color}{score}/10{Style.RESET_ALL}"),
     ]
+
+    # Scores MASVS par domaine (IA)
     ds = ai.get("domain_scores", {})
     for domain in ("AUTH", "STORAGE", "NETWORK", "CRYPTO"):
         s = ds.get(domain)
         if s is not None:
             c = Fore.RED if s < 4 else (Fore.YELLOW if s < 7 else Fore.GREEN)
-            rows.append((f"  Score {domain}", f"{c}{s}/10{Style.RESET_ALL}"))
+            rows.append((f"  Score MASVS-{domain}", f"{c}{s}/10{Style.RESET_ALL}"))
+
+    # Score cookie scanner
+    if cookie.get("cookies_found", 0) > 0 or cookie.get("findings"):
+        c_score = cookie.get("score", 10)
+        c_col = Fore.RED if c_score < 4 else (Fore.YELLOW if c_score < 7 else Fore.GREEN)
+        rows.append(("  Score Cookies", f"{c_col}{c_score}/10{Style.RESET_ALL}"))
+
+    # Score storage scanner
+    if storage.get("findings"):
+        s_score = storage.get("score", 10)
+        s_col = Fore.RED if s_score < 4 else (Fore.YELLOW if s_score < 7 else Fore.GREEN)
+        rows.append(("  Score Storage",    f"{s_col}{s_score}/10{Style.RESET_ALL}"))
+        rows.append(("  EncryptedPrefs",   "OUI" if storage.get("uses_encrypted_prefs") else "NON"))
+        rows.append(("  Android Keystore", "OUI" if storage.get("uses_keystore") else "NON"))
 
     rows += [
         ("Deconnexion effective", str(dynamic.get("logout_effective"))),
@@ -290,7 +459,7 @@ def _summary_table(results: dict, json_path: str, pdf_path: str):
     ]
 
     for label, value in rows:
-        print(f"  {Fore.WHITE}{label:<24}{Style.RESET_ALL}: {value}")
+        print(f"  {Fore.WHITE}{label:<26}{Style.RESET_ALL}: {value}")
 
     print(Fore.CYAN + "=" * 62)
     print()
@@ -302,7 +471,7 @@ def _summary_table(results: dict, json_path: str, pdf_path: str):
 
 def check_requirements(skip_dynamic: bool) -> list:
     issues = []
-    if not shutil.which("jadx"):
+    if not shutil.which("jadx") and not shutil.which("jadx.cmd"):
         issues.append("JADX introuvable — scoop install extras/jadx")
     if not skip_dynamic and not shutil.which("mitmdump"):
         issues.append("mitmdump introuvable — pip install mitmproxy")
@@ -335,18 +504,21 @@ def main():
                         help="Analyse statique uniquement (pas de dynamique ni d'IA)")
     parser.add_argument("--demo",         action="store_true",
                         help="Mode demonstration (donnees pre-calculees, pas de JADX ni d'emulateur)")
-    parser.add_argument("--output-dir",   default="output",   help="Dossier de decompilation JADX")
-    parser.add_argument("--results-dir",  default="results",  help="Dossier des rapports generés")
+    parser.add_argument("--output-dir",   default="output",  help="Dossier de decompilation JADX")
+    parser.add_argument("--results-dir",  default="results", help="Dossier des rapports generes")
     args = parser.parse_args()
 
     _banner()
 
-    apk_path = args.apk
-    apk_name = Path(apk_path).stem
+    apk_path    = args.apk
+    apk_name    = Path(apk_path).stem
     output_dir  = os.path.join(args.output_dir, apk_name)
     results_dir = args.results_dir
     do_dynamic  = not args.skip_dynamic and not args.static_only
     do_ai       = not args.static_only
+
+    # Détection InsecureBankv2 pour les modules session/cookie
+    is_ibank = "insecure" in apk_name.lower() or "app-debug" in apk_name.lower()
 
     # ── Validation de l'APK ───────────────────────────────────────────────
     if not args.demo and not os.path.exists(apk_path):
@@ -367,15 +539,14 @@ def main():
             _warn("L'analyse IA sera ignoree (cle API manquante)")
             do_ai = False
 
-    TOTAL = 4
+    TOTAL = 7  # 4 originaux + 3 nouveaux (cookie, storage, session)
 
-    # ─────────────────────────────────────────────────────────────────────
-    # [1/4] ANALYSE STATIQUE
-    # ─────────────────────────────────────────────────────────────────────
+    # ═════════════════════════════════════════════════════════════════════
+    # [1/7] ANALYSE STATIQUE
+    # ═════════════════════════════════════════════════════════════════════
     _step(1, TOTAL, "Analyse statique (JADX + patterns regex)...")
 
     if args.demo:
-        # Choisir le fixture correspondant à l'APK
         demo_key = "dvba" if "dvba" in apk_name.lower() else "app-debug"
         static_results = DEMO_DATA[demo_key]["static"]
         _ok(f"[DEMO] {static_results['files_scanned']} fichiers, "
@@ -384,15 +555,25 @@ def main():
         try:
             import static_analyzer
             static_results = static_analyzer.analyze(apk_path, output_dir)
-            # Correction auth_type par nom d'APK (plus fiable que la détection regex)
+
+            # Correction auth_type par nom APK (prioritaire sur la détection regex)
             name_l = apk_name.lower()
             if "dvba" in name_l:
                 static_results["auth_type"] = "JWT"
             elif "insecure" in name_l or "app-debug" in name_l or "app_debug" in name_l:
                 static_results["auth_type"] = "SESSION_COOKIE"
+            elif _AI_EXTRAS:
+                # Détection étendue seulement si nom inconnu
+                auth_type_extended = detect_auth_type_extended(
+                    static_results["findings"], output_dir
+                )
+                if auth_type_extended and auth_type_extended != "UNKNOWN":
+                    static_results["auth_type"] = auth_type_extended
+
             _ok(f"Decompilation OK — {static_results['files_scanned']} fichiers analyses")
             _ok(f"Type d'authentification detecte : {static_results['auth_type']}")
-            _ok(f"{len(static_results['findings'])} vulnerabilites trouvees (score {static_results['score']}/10)")
+            _ok(f"{len(static_results['findings'])} vulnerabilites trouvees "
+                f"(score {static_results['score']}/10)")
             for f in static_results["findings"]:
                 _finding_line(f)
             if "error" in static_results:
@@ -402,12 +583,14 @@ def main():
             sys.exit(1)
         except Exception as e:
             _err(f"Erreur analyse statique : {e}")
+            import traceback
+            traceback.print_exc()
             sys.exit(1)
 
-    # ─────────────────────────────────────────────────────────────────────
-    # [2/4] ANALYSE DYNAMIQUE
-    # ─────────────────────────────────────────────────────────────────────
-    _step(2, TOTAL, "Analyse dynamique...")
+    # ═════════════════════════════════════════════════════════════════════
+    # [2/7] ANALYSE DYNAMIQUE
+    # ═════════════════════════════════════════════════════════════════════
+    _step(2, TOTAL, "Analyse dynamique (JWT/API tests)...")
 
     if not do_dynamic:
         _warn("Ignoree (--skip-dynamic ou --static-only)")
@@ -438,6 +621,46 @@ def main():
                 _warn("Deconnexion : non testee (backend inaccessible ?)")
             for f in dynamic_results.get("findings", []):
                 _finding_line(f)
+
+            # ── Tests additionnels Iliass (token lifetime + session fixation) ──
+            if _DYNAMIC_EXTRAS:
+                current_auth   = static_results.get("auth_type")
+                captured_token = dynamic_results.get("captured_token")
+                base_url       = dynamic_results.get("base_url")
+                creds          = dynamic_results.get("credentials", {})
+                username       = creds.get("username")
+                password       = creds.get("password")
+
+                # Token lifetime + rejet token expiré (JWT uniquement)
+                if current_auth == "JWT" and captured_token:
+                    lt_finding = analyze_token_lifetime(captured_token)
+                    dynamic_results["findings"].append(lt_finding)
+                    _finding_line(lt_finding)
+
+                    if base_url:
+                        exp_finding = test_expired_token_rejection(
+                            base_url, captured_token,
+                            lambda t: {"Authorization": f"Bearer {t}"}
+                        )
+                        dynamic_results["findings"].append(exp_finding)
+                        _finding_line(exp_finding)
+
+                # Session fixation
+                if current_auth == "JWT" and base_url:
+                    fake_token = "eyJhbGciOiJIUzI1NiJ9.fake.sig"
+                    fix_finding = test_session_fixation_jwt(
+                        base_url,
+                        lambda u, p: _try_login_simple(base_url),
+                        fake_token
+                    )
+                    dynamic_results["findings"].append(fix_finding)
+                    _finding_line(fix_finding)
+
+                elif current_auth == "SESSION_COOKIE" and base_url and username and password:
+                    fix_finding = test_session_fixation_http(base_url, username, password)
+                    dynamic_results["findings"].append(fix_finding)
+                    _finding_line(fix_finding)
+
         except Exception as e:
             _warn(f"Analyse dynamique echouee : {e}")
             dynamic_results = {
@@ -448,18 +671,135 @@ def main():
                 "findings": [{"severity": "INFO", "type": "Erreur", "detail": str(e)}],
             }
 
-    # ─────────────────────────────────────────────────────────────────────
-    # [3/4] ANALYSE IA
-    # ─────────────────────────────────────────────────────────────────────
-    _step(3, TOTAL, "Analyse IA — Claude (checklist MASVS + criteres)...")
+    # ═════════════════════════════════════════════════════════════════════
+    # [3/7] COOKIE SECURITY SCANNER  (Hafssa)
+    # ═════════════════════════════════════════════════════════════════════
+    _step(3, TOTAL, "Cookie Security Scanner (OWASP flags)...")
+
+    if args.demo:
+        demo_key = "dvba" if "dvba" in apk_name.lower() else "app-debug"
+        cookie_results = DEMO_DATA[demo_key]["cookie"]
+        _ok(f"[DEMO] {len(cookie_results['findings'])} findings cookies")
+    elif not do_dynamic:
+        _warn("Cookie scanner ignore (--skip-dynamic)")
+        cookie_results = {"findings": [], "cookies_found": 0, "score": 10}
+    else:
+        try:
+            import cookie_scanner
+            traffic_file = os.path.join(results_dir, f"traffic_{apk_name}.json")
+            cookie_results = cookie_scanner.scan_traffic_file(traffic_file)
+            n       = len(cookie_results.get("findings", []))
+            cookies = cookie_results.get("cookies_found", 0)
+            if cookies == 0:
+                _warn(f"Aucun cookie intercepte dans {traffic_file} (proxy actif ?)")
+            else:
+                _ok(f"{cookies} cookie(s) analyse(s) — {n} findings")
+            for f in cookie_results.get("findings", []):
+                if f.get("severity") in ("CRITIQUE", "ELEVE"):
+                    _finding_line(f)
+        except ImportError:
+            _warn("cookie_scanner.py introuvable — module ignore")
+            cookie_results = {"findings": [], "cookies_found": 0, "score": 10}
+        except Exception as e:
+            _warn(f"Cookie scanner erreur : {e}")
+            cookie_results = {"findings": [], "cookies_found": 0, "score": 10}
+
+    # ═════════════════════════════════════════════════════════════════════
+    # [4/7] ANDROID STORAGE SCANNER  (Hafssa)
+    # ═════════════════════════════════════════════════════════════════════
+    _step(4, TOTAL, "Android Storage Scanner (SharedPrefs / Keystore)...")
+
+    if args.demo:
+        demo_key = "dvba" if "dvba" in apk_name.lower() else "app-debug"
+        storage_results = DEMO_DATA[demo_key]["storage"]
+        _ok(f"[DEMO] {len(storage_results['findings'])} findings storage")
+        _ok(f"[DEMO] EncryptedSharedPrefs : {'OUI' if storage_results['uses_encrypted_prefs'] else 'NON'}")
+        _ok(f"[DEMO] Android Keystore     : {'OUI' if storage_results['uses_keystore'] else 'NON'}")
+    else:
+        try:
+            import storage_scanner
+            storage_results = storage_scanner.analyze(output_dir)
+            _ok(f"{len(storage_results['findings'])} findings storage "
+                f"(score {storage_results['score']}/10)")
+            _ok(f"EncryptedSharedPrefs : {'OUI' if storage_results['uses_encrypted_prefs'] else 'NON'}")
+            _ok(f"Android Keystore     : {'OUI' if storage_results['uses_keystore'] else 'NON'}")
+            for f in storage_results.get("findings", []):
+                if f.get("severity") in ("CRITIQUE", "ELEVE"):
+                    _finding_line(f)
+        except ImportError:
+            _warn("storage_scanner.py introuvable — module ignore")
+            storage_results = {"findings": [], "uses_encrypted_prefs": False,
+                               "uses_keystore": False, "score": 10}
+        except Exception as e:
+            _warn(f"Storage scanner erreur : {e}")
+            storage_results = {"findings": [], "uses_encrypted_prefs": False,
+                               "uses_keystore": False, "score": 10}
+
+    # ═════════════════════════════════════════════════════════════════════
+    # [5/7] SESSION SCANNER  (Hafssa)
+    # ═════════════════════════════════════════════════════════════════════
+    _step(5, TOTAL, "Session Scanner (entropy, fixation, timeout)...")
+
+    if args.demo:
+        demo_key = "dvba" if "dvba" in apk_name.lower() else "app-debug"
+        session_results = DEMO_DATA[demo_key]["session"]
+        _ok(f"[DEMO] {len(session_results['findings'])} findings session")
+    elif not do_dynamic:
+        _warn("Session scanner ignore (--skip-dynamic)")
+        session_results = {"mode": "IGNORE", "session_id_detected": None, "findings": []}
+    elif not is_ibank:
+        _warn("DVBA utilise JWT — session scanner non applicable (cible : InsecureBankv2)")
+        session_results = {
+            "mode": "SESSION_SCANNER",
+            "session_id_detected": None,
+            "findings": [{
+                "id": "SESSION_NA_JWT",
+                "severity": "INFO",
+                "type": "Session scanner non applicable",
+                "detail": "L'application utilise JWT, pas de session cookie.",
+            }],
+        }
+    else:
+        try:
+            import session_scanner
+            session_results = session_scanner.analyze()
+            sid = session_results.get("session_id_detected")
+            if sid:
+                _ok(f"Session ID detecte : ...{sid[-8:]}")
+            else:
+                _warn("Aucun Session ID detecte (backend accessible ?)")
+            n = len(session_results.get("findings", []))
+            _ok(f"{n} findings session") if n else _warn("0 findings")
+            for f in session_results.get("findings", []):
+                if f.get("severity") in ("CRITIQUE", "ELEVE"):
+                    _finding_line(f)
+        except ImportError:
+            _warn("session_scanner.py introuvable — module ignore")
+            session_results = {"mode": "IGNORE", "session_id_detected": None, "findings": []}
+        except Exception as e:
+            _warn(f"Session scanner erreur : {e}")
+            session_results = {"mode": "ERREUR", "session_id_detected": None,
+                               "findings": [{"severity": "INFO", "type": "Erreur",
+                                             "detail": str(e)}]}
+
+    # ═════════════════════════════════════════════════════════════════════
+    # [6/7] ANALYSE IA
+    # ═════════════════════════════════════════════════════════════════════
+    _step(6, TOTAL, "Analyse IA — Claude (checklist MASVS + criteres)...")
+
+    # Agréger tous les findings des nouveaux modules pour enrichir le contexte IA
+    all_extra_findings = (
+        cookie_results.get("findings", [])
+        + storage_results.get("findings", [])
+        + session_results.get("findings", [])
+    )
 
     if not do_ai:
         _warn("Ignoree (--static-only)")
         ai_results = {
-            "checklist": [],
-            "acceptance_criteria": [],
-            "summary": "Analyse IA non executee.",
-            "domain_scores": {},
+            "checklist": [], "acceptance_criteria": [],
+            "summary": "Analyse IA non executee.", "domain_scores": {},
+            "oauth2_checklist": [], "structured_acceptance_criteria": [],
         }
     elif args.demo:
         demo_key = "dvba" if "dvba" in apk_name.lower() else "app-debug"
@@ -469,10 +809,16 @@ def main():
     else:
         try:
             import ai_engine
+            # Enrichir les findings statiques avec cookie/storage/session
+            enriched_static = dict(static_results)
+            enriched_static["findings"] = (
+                static_results.get("findings", []) + all_extra_findings
+            )
             combined = {
-                "auth_type": static_results.get("auth_type", "UNKNOWN"),
-                "static":    static_results,
-                "dynamic":   dynamic_results,
+                "auth_type":       static_results.get("auth_type", "UNKNOWN"),
+                "static":          enriched_static,
+                "dynamic":         dynamic_results,
+                "decompiled_path": output_dir,
             }
             ai_results = ai_engine.analyze(combined)
             _ok(f"Checklist generee : {len(ai_results['checklist'])} elements")
@@ -481,32 +827,70 @@ def main():
             for domain, score in ds.items():
                 col = Fore.RED if score < 4 else (Fore.YELLOW if score < 7 else Fore.GREEN)
                 print(f"    {domain}: {col}{score}/10{Style.RESET_ALL}")
+
+            # ── Extras Iliass : OAuth2 + critères structurés ──────────────
+            if _AI_EXTRAS:
+                current_auth = static_results.get("auth_type")
+                ai_client    = getattr(ai_engine, "client", None)
+
+                # Checklist OAuth2
+                if current_auth == "OAUTH2" and ai_client:
+                    try:
+                        oauth2_items = generate_oauth2_checklist(
+                            ai_client, static_results["findings"]
+                        )
+                        ai_results["oauth2_checklist"] = oauth2_items
+                        _ok("Checklist OAuth2 generee")
+                    except Exception as e:
+                        _warn(f"Checklist OAuth2 echouee : {e}")
+                        ai_results["oauth2_checklist"] = []
+                else:
+                    ai_results.setdefault("oauth2_checklist", [])
+
+                # Critères d'acceptation structurés Gherkin
+                try:
+                    structured = generate_structured_acceptance_criteria(
+                        ai_client, current_auth,
+                        dynamic_results.get("findings", [])
+                    )
+                    ai_results["structured_acceptance_criteria"] = structured
+                    _ok(f"Criteres structures : {len(structured)} elements")
+                except Exception as e:
+                    _warn(f"Criteres structures echoues : {e}")
+                    ai_results["structured_acceptance_criteria"] = []
+            else:
+                ai_results.setdefault("oauth2_checklist", [])
+                ai_results.setdefault("structured_acceptance_criteria", [])
+
         except ValueError as e:
             _warn(str(e))
             ai_results = {
-                "checklist": [],
-                "acceptance_criteria": [],
+                "checklist": [], "acceptance_criteria": [],
                 "summary": "Analyse IA non disponible (cle API manquante).",
-                "domain_scores": {},
+                "domain_scores": {}, "oauth2_checklist": [],
+                "structured_acceptance_criteria": [],
             }
         except Exception as e:
             _warn(f"Erreur IA : {e}")
             ai_results = {
-                "checklist": [],
-                "acceptance_criteria": [],
+                "checklist": [], "acceptance_criteria": [],
                 "summary": f"Erreur lors de l'analyse IA : {e}",
-                "domain_scores": {},
+                "domain_scores": {}, "oauth2_checklist": [],
+                "structured_acceptance_criteria": [],
             }
 
-    # ─────────────────────────────────────────────────────────────────────
-    # [4/4] GÉNÉRATION DU RAPPORT
-    # ─────────────────────────────────────────────────────────────────────
-    _step(4, TOTAL, "Generation des rapports (JSON + PDF)...")
+    # ═════════════════════════════════════════════════════════════════════
+    # [7/7] GÉNÉRATION DU RAPPORT
+    # ═════════════════════════════════════════════════════════════════════
+    _step(7, TOTAL, "Generation des rapports (JSON + PDF)...")
 
     full_results = {
         "apk":     apk_name,
         "static":  static_results,
         "dynamic": dynamic_results,
+        "cookie":  cookie_results,   # Hafssa
+        "storage": storage_results,  # Hafssa
+        "session": session_results,  # Hafssa
         "ai":      ai_results,
     }
 
@@ -523,9 +907,6 @@ def main():
         traceback.print_exc()
         json_path = pdf_path = "N/A"
 
-    # ─────────────────────────────────────────────────────────────────────
-    # RÉSUMÉ FINAL
-    # ─────────────────────────────────────────────────────────────────────
     _summary_table(full_results, json_path, pdf_path)
 
 

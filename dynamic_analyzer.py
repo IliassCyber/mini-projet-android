@@ -19,6 +19,8 @@ import base64
 import json
 import time
 import requests
+import jwt 
+import datetime, time
 
 # ---------------------------------------------------------------------------
 # Configuration des endpoints
@@ -180,6 +182,183 @@ def _try_authenticated_request(base_url: str, token: str, timeout: int = 8):
 
 
 # ---------------------------------------------------------------------------
+# ── NOUVEAU : Analyse Token Lifetime & Expired Token
+# ---------------------------------------------------------------------------
+
+# Seuils OWASP recommandés (en secondes)
+TOKEN_LIFETIME_THRESHOLDS = {
+    "access_token_max": 900,        # 15 min
+    "access_token_warn": 3600,       # 1h = warning
+    "refresh_token_max": 86400 * 7,  # 7 jours
+}
+
+def analyze_token_lifetime(token: str) -> dict:
+    """
+    Décode le JWT sans vérification de signature.
+    Retourne durée de vie, sévérité et recommandation MASVS.
+    """
+    result = {
+        "test": "Token Lifetime Analysis",
+        "masvs": "MASVS-AUTH-002",
+        "passed": False,
+        "severity": "UNKNOWN",
+        "details": {}
+    }
+    try:
+        payload = jwt.decode(token, options={
+            "verify_signature": False,
+            "verify_exp": False
+        })
+
+        if "exp" not in payload:
+            result["severity"] = "CRITICAL"
+            result["details"]["exp_present"] = False
+            result["details"]["message"] = "No exp claim — token never expires"
+            return result
+
+        now = int(time.time())
+        exp = payload["exp"]
+        iat = payload.get("iat", now)
+        lifetime_sec = exp - iat
+
+        result["details"] = {
+            "exp_present": True,
+            "iat": datetime.datetime.utcfromtimestamp(iat).isoformat(),
+            "exp": datetime.datetime.utcfromtimestamp(exp).isoformat(),
+            "lifetime_seconds": lifetime_sec,
+            "lifetime_human": str(datetime.timedelta(seconds=lifetime_sec))
+        }
+
+        if lifetime_sec > TOKEN_LIFETIME_THRESHOLDS["access_token_warn"]:
+            result["severity"] = "HIGH"
+            result["details"]["recommendation"] = (
+                f"Token valid for {lifetime_sec//3600}h. OWASP recommends < 15 min. "
+                "MASVS-AUTH-002: short-lived tokens required."
+            )
+        elif lifetime_sec > TOKEN_LIFETIME_THRESHOLDS["access_token_max"]:
+            result["severity"] = "MEDIUM"
+            result["details"]["recommendation"] = "Token > 15 min. Consider shorter lifetime."
+        else:
+            result["severity"] = "LOW"
+            result["passed"] = True
+
+    except Exception as e:
+        result["details"]["error"] = str(e)
+
+    return result
+
+
+def test_expired_token_rejection(base_url: str, expired_token: str,
+                                   headers_fn) -> dict:
+    """
+    Rejoue un token expiré (modifié manuellement via exp = past timestamp).
+    Vérifie que le serveur répond 401 et pas 200.
+    """
+    import requests, base64, json
+
+    # Crée un token expiré en modifiant le payload
+    parts = expired_token.split(".")
+    try:
+        padded = parts[1] + "=" * (-len(parts[1]) % 4)
+        payload = json.loads(base64.b64decode(padded))
+        payload["exp"] = 1000000000  # 2001 — definitely expired
+        new_p = base64.b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+        tampered = f"{parts[0]}.{new_p}.{parts[2]}"
+    except:
+        tampered = expired_token  # fallback
+
+    resp = requests.get(
+        f"{base_url}/dashboard",
+        headers=headers_fn(tampered),
+        timeout=5
+    )
+    accepted = resp.status_code == 200
+    return {
+        "test": "Expired Token Rejection",
+        "masvs": "MASVS-AUTH-003",
+        "passed": not accepted,
+        "severity": "CRITICAL" if accepted else "PASS",
+        "status_code": resp.status_code,
+        "details": "Server accepted expired token!" if accepted else "Server correctly rejected expired token"
+    }
+
+
+# ---------------------------------------------------------------------------
+# ── NOUVEAU : Session Fixation Tests
+# ---------------------------------------------------------------------------
+
+def test_session_fixation_jwt(base_url: str, login_fn, arbitrary_token: str) -> dict:
+    """
+    Test session fixation JWT :
+    Vérifie qu'un token arbitraire fourni avant auth ne devient pas valide après login.
+    """
+    import requests
+
+    # Vérification pre-auth : le token arbitraire est rejeté
+    pre_resp = requests.get(
+        f"{base_url}/dashboard",
+        headers={"Authorization": f"Bearer {arbitrary_token}"},
+        timeout=5
+    )
+
+    # Login normal → obtenir token légitime
+    legitimate_token = login_fn("user1", "password1")
+
+    # Re-tester le token arbitraire après auth (fixation scenario)
+    post_resp = requests.get(
+        f"{base_url}/dashboard",
+        headers={"Authorization": f"Bearer {arbitrary_token}"},
+        timeout=5
+    )
+
+    fixation_possible = post_resp.status_code == 200
+    return {
+        "test": "Session Fixation — JWT pre-auth token injection",
+        "masvs": "MASVS-AUTH-006",
+        "cwe": "CWE-384",
+        "passed": not fixation_possible,
+        "severity": "CRITICAL" if fixation_possible else "PASS",
+        "pre_auth_status": pre_resp.status_code,
+        "post_auth_status": post_resp.status_code,
+        "details": "Arbitrary token accepted after auth — Session Fixation!"
+                    if fixation_possible
+                    else "Arbitrary token correctly rejected before and after auth ✓"
+    }
+
+def test_session_fixation_http(base_url: str, username: str, password: str) -> dict:
+    """
+    Test session fixation pour InsecureBankv2 (HTTP sessions) :
+    Vérifie que le session cookie change après authentification.
+    """
+    import requests
+    session = requests.Session()
+
+    # Récupérer un cookie pré-auth
+    session.get(f"{base_url}/", timeout=5)
+    pre_auth_cookie = dict(session.cookies).copy()
+
+    # Login
+    session.post(f"{base_url}/login",
+                 data={"username": username, "password": password},
+                 timeout=5)
+    post_auth_cookie = dict(session.cookies).copy()
+
+    # Comparer les session cookies
+    session_changed = pre_auth_cookie != post_auth_cookie
+    return {
+        "test": "Session Fixation — session cookie regenerated on login",
+        "masvs": "MASVS-AUTH-006",
+        "cwe": "CWE-384",
+        "passed": session_changed,
+        "severity": "HIGH" if not session_changed else "PASS",
+        "pre_auth_cookies": pre_auth_cookie,
+        "post_auth_cookies": post_auth_cookie,
+        "details": "Session ID not regenerated after login — Session Fixation risk!"
+                    if not session_changed
+                    else "Session ID regenerated on login ✓"
+    }
+
+# ---------------------------------------------------------------------------
 # MODE A — Tests automatisés DVBA
 # ---------------------------------------------------------------------------
 
@@ -190,32 +369,30 @@ def analyze_dvba(base_url: str = DVBA_BASE) -> dict:
         "logout_effective": None,
         "token_lifetime_minutes": None,
         "rotation_enforced": None,
+        "captured_token": None,       # ← NOUVEAU
+        "base_url": base_url,         # ← NOUVEAU
         "findings": findings,
     }
 
-    # ── Test 1 : Login ────────────────────────────────────────────────────
-    # Note : DVBA chiffre ses requêtes en XOR+Base64 (clé "amazing" codée en dur)
     token, refresh_token = _try_login(base_url)
 
     if not token:
         findings.append({
             "severity": "INFO",
             "type": "Backend inaccessible",
-            "detail": (
-                f"DVBA non disponible sur {base_url}. "
-                "Demarrez le backend et relancez sans --skip-dynamic."
-            ),
+            "detail": f"DVBA non disponible sur {base_url}.",
         })
         return result
 
-    # ── Test 2 : Décodage JWT + vérification exp ──────────────────────────
-    payload = _decode_jwt_payload(token)
+    result["captured_token"] = token  # ← NOUVEAU
 
+    # Test 2 : exp
+    payload = _decode_jwt_payload(token)
     if "exp" not in payload:
         findings.append({
             "severity": "CRITIQUE",
             "type": "JWT sans expiration",
-            "detail": "Le token JWT ne contient pas de champ 'exp' — il ne expire jamais",
+            "detail": "Le token JWT ne contient pas de champ 'exp'",
         })
         result["token_lifetime_minutes"] = None
     else:
@@ -225,10 +402,9 @@ def analyze_dvba(base_url: str = DVBA_BASE) -> dict:
             findings.append({
                 "severity": "ELEVE",
                 "type": "Duree de vie du token excessive",
-                "detail": f"Token valide pendant {lifetime_min / 60:.1f} heures (> 24h)",
+                "detail": f"Token valide pendant {lifetime_min/60:.1f} heures (> 24h)",
             })
 
-    # Vérifier l'algorithme dans le header JWT (pas le payload)
     try:
         hdr_b64 = token.split(".")[0] + "=="
         import json as _json
@@ -240,41 +416,34 @@ def analyze_dvba(base_url: str = DVBA_BASE) -> dict:
         findings.append({
             "severity": "CRITIQUE",
             "type": "JWT algorithme none",
-            "detail": "Le token utilise l'algorithme 'none' — falsification triviale",
+            "detail": "Le token utilise l'algorithme 'none'",
         })
 
-    # ── Test 3 : Logout puis rejeu ────────────────────────────────────────
+    # Test 3 : logout + rejeu
     _try_logout(base_url, token)
     time.sleep(0.5)
-
     status_after = _try_authenticated_request(base_url, token)
     if status_after in (200, 201):
         result["logout_effective"] = False
         findings.append({
             "severity": "CRITIQUE",
-            "type": "Token rejou apres deconnexion",
-            "detail": (
-                f"Le serveur repond HTTP {status_after} sur {DVBA_PROFILE_ENDPOINT} "
-                "apres logout — invalidation cote serveur absente"
-            ),
+            "type": "Token rejoue apres deconnexion",
+            "detail": f"HTTP {status_after} apres logout — invalidation absente",
         })
     elif status_after in (401, 403):
         result["logout_effective"] = True
 
-    # ── Test 4 : JWT falsifié ─────────────────────────────────────────────
+    # Test 4 : JWT falsifié
     tampered = _tamper_jwt(token, {"role": "admin", "isAdmin": True})
     status_tampered, _ = _dvba_get(base_url, DVBA_PROFILE_ENDPOINT, tampered)
     if status_tampered in (200, 201):
         findings.append({
             "severity": "CRITIQUE",
             "type": "JWT falsifiable",
-            "detail": (
-                f"Le serveur accepte un JWT avec signature invalide "
-                f"(HTTP {status_tampered}) — verification de signature absente"
-            ),
+            "detail": f"Serveur accepte JWT signature invalide (HTTP {status_tampered})",
         })
 
-    # ── Test 5 : Rotation du refresh token ───────────────────────────────
+    # Test 5 : rotation refresh
     if refresh_token:
         try:
             s1, _ = _dvba_post(base_url, DVBA_REFRESH_ENDPOINT,
@@ -286,7 +455,7 @@ def analyze_dvba(base_url: str = DVBA_BASE) -> dict:
                 findings.append({
                     "severity": "ELEVE",
                     "type": "Pas de rotation des refresh tokens",
-                    "detail": "Le meme refresh token est accepte deux fois consecutives",
+                    "detail": "Le meme refresh token accepte deux fois",
                 })
             elif s1 in (200, 201) and s2 in (400, 401, 403):
                 result["rotation_enforced"] = True
@@ -294,7 +463,6 @@ def analyze_dvba(base_url: str = DVBA_BASE) -> dict:
             pass
 
     return result
-
 
 # ---------------------------------------------------------------------------
 # MODE B — Tests directs InsecureBankv2 (pas de session : credentials par requête)
@@ -323,7 +491,7 @@ def analyze_insecure_bank(apk_name: str, results_dir: str) -> dict:
     # ── Test 1 : Login en HTTP clair ─────────────────────────────────────
     try:
         r = requests.post(f"{base}/login",
-                          data={"username": "dinesh", "password": "dinesh123"},
+                          data={"username": "dinesh", "password": "Dinesh@123$"},
                           timeout=8)
     except requests.ConnectionError:
         findings.append({
@@ -351,7 +519,7 @@ def analyze_insecure_bank(apk_name: str, results_dir: str) -> dict:
                 "— interceptable par MITM"
             ),
         })
-
+        
     # ── Test 2 : Accès sans authentification ─────────────────────────────
     try:
         r_noauth = requests.post(f"{base}/getaccounts",
@@ -401,7 +569,7 @@ def analyze_insecure_bank(apk_name: str, results_dir: str) -> dict:
     # ── Test 4 : Données sensibles dans la réponse ───────────────────────
     try:
         r_acc = requests.post(f"{base}/getaccounts",
-                              data={"username": "dinesh", "password": "dinesh123"},
+                              data={"username": "dinesh", "password": "Dinesh@123$"},
                               timeout=8)
         if r_acc.status_code == 200:
             result["logout_effective"] = False   # pas de session = pas de logout réel
@@ -424,16 +592,17 @@ def analyze_insecure_bank(apk_name: str, results_dir: str) -> dict:
 # ---------------------------------------------------------------------------
 
 def analyze(_apk_path: str, apk_name: str, auth_type: str, results_dir: str) -> dict:
-    """
-    Dispatch vers le bon mode selon le nom de l'APK (prioritaire) puis auth_type.
-    Le nom est plus fiable : InsecureBankv2 contient des librairies JWT
-    qui faussent la détection auth_type.
-    """
     name = apk_name.lower()
     is_ibank = "insecure" in name or "app-debug" in name or "app_debug" in name
     use_dvba = (not is_ibank) and (("dvba" in name) or (auth_type == "JWT"))
 
     if use_dvba:
-        return analyze_dvba()
+        result = analyze_dvba()
+        result["base_url"] = DVBA_BASE
+        result["credentials"] = {"username": "user1", "password": "password1"}
+        return result
     else:
-        return analyze_insecure_bank(apk_name, results_dir)
+        result = analyze_insecure_bank(apk_name, results_dir)
+        result["base_url"] = IBANK_BASE
+        result["credentials"] = {"username": "dinesh", "password": "Dinesh@123$"}
+        return result

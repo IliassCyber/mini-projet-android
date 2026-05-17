@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 import anthropic
 
 load_dotenv()
+_api_key = os.getenv("ANTHROPIC_API_KEY")
+client = anthropic.Anthropic(api_key=_api_key) if _api_key else None
 
 MODEL = "claude-sonnet-4-6"
 MAX_TOKENS = 2048
@@ -57,6 +59,91 @@ def compute_domain_scores(static_findings: list, dynamic_findings: list) -> dict
 
     return scores
 
+OAUTH2_CHECKLIST_PROMPT = """
+Tu es un expert en sécurité mobile OAuth2. Génère une checklist de sécurité
+pour une application Android utilisant OAuth2 (Authorization Code Flow + PKCE).
+
+Format chaque item ainsi :
+- [MASVS-ID] Description du test | Sévérité: CRITICAL/HIGH/MEDIUM/LOW | CWE: XXX
+
+Couvre obligatoirement :
+1. PKCE (Proof Key for Code Exchange) — présent et configuré (S256 not plain)
+2. State parameter — présent et vérifié (CSRF protection)  
+3. redirect_uri — validée strictement côté serveur (pas de wildcard)
+4. Scope — minimal, pas de scope excessif
+5. Authorization code — usage unique, expiration courte
+6. Client secret — non exposé dans l'APK (public client)
+7. Token stockage — Keystore Android, pas SharedPreferences
+8. Custom Tabs vs WebView — utilisation de Custom Tabs pour le flow OAuth
+9. Intent filter — redirect URI sécurisée (https scheme ou app scheme unique)
+10. Token leakage — tokens non logués, non dans les URLs
+
+Findings statiques disponibles : {static_findings}
+Type d'application : Android native OAuth2 client
+"""
+
+def generate_oauth2_checklist(client, static_findings: list) -> dict:
+    """Génère la checklist OAuth2 via Claude API."""
+    prompt = OAUTH2_CHECKLIST_PROMPT.format(
+        static_findings=str(static_findings[:10])
+    )
+    message = client.messages.create(
+        model=MODEL,
+        max_tokens=1500,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return {
+        "auth_type": "OAuth2",
+        "checklist": message.content[0].text,
+        "masvs_chapter": "MASVS-AUTH"
+    }
+
+def generate_structured_acceptance_criteria(
+        client, auth_type: str, dynamic_findings: list) -> list:
+    if not client or not dynamic_findings:
+        return []
+    failed = [
+        r.get("test", r.get("type", ""))
+        for r in dynamic_findings
+        if not r.get("passed", True)
+    ]
+    if not failed:
+        return []
+    prompt = (
+        f"Tests de securite echoues pour une app Android {auth_type} :\n"
+        + "\n".join(f"- {t}" for t in failed)
+        + "\nGenere 3-5 criteres Gherkin (Given/When/Then). "
+          "Reponds uniquement avec une liste de strings, une par ligne, sans markdown."
+    )
+    try:
+        msg = client.messages.create(
+            model=MODEL, max_tokens=800,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return [
+            line.strip()
+            for line in msg.content[0].text.splitlines()
+            if line.strip()
+        ]
+    except Exception:
+        return []
+
+def detect_auth_type_extended(static_findings: list, decompiled_path: str) -> str:
+    """Détecte JWT, SESSION_COOKIE, OAUTH2 ou HTTP_FORM."""
+    import os, re
+    oauth2_patterns = [
+        r"authorization_endpoint", r"redirect_uri",
+        r"client_id", r"code_verifier", r"code_challenge",
+        r"AppAuth", r"OAuthService"
+    ]
+    for root, _, files in os.walk(decompiled_path):
+        for f in files:
+            if f.endswith((".java", ".kt")):
+                with open(os.path.join(root, f), encoding='utf-8', errors='ignore') as fh:
+                    content = fh.read()
+                if any(re.search(p, content) for p in oauth2_patterns):
+                    return "OAUTH2"
+    return "JWT" if any("JWT" in f.get("type", "") for f in static_findings) else "SESSION_COOKIE"
 
 # ---------------------------------------------------------------------------
 # Construction du prompt
@@ -221,12 +308,27 @@ def analyze(combined: dict) -> dict:
     dynamic_results = combined.get("dynamic", {})
     static_findings = static_results.get("findings", [])
     dynamic_findings= dynamic_results.get("findings", [])
+    
+    # Détection automatique du type d'auth (JWT / SESSION_COOKIE / OAUTH2)
+    decompiled_path = combined.get("decompiled_path", ".")
+    auth_type = detect_auth_type_extended(static_findings, decompiled_path)
+
+    client = anthropic.Anthropic(api_key=api_key)
+
+    # --- OAuth2 spécifique ---
+    if auth_type == "OAUTH2":
+        checklist_data = generate_oauth2_checklist(client, static_findings)
+        return {
+            "checklist": checklist_data["checklist"].splitlines(),
+            "acceptance_criteria": [],
+            "summary": "Checklist OAuth2 générée via Claude",
+            "domain_scores": {}
+        }
 
     domain_scores = compute_domain_scores(static_findings, dynamic_findings)
 
     prompt = _build_prompt(auth_type, static_findings, dynamic_results, domain_scores)
 
-    client = anthropic.Anthropic(api_key=api_key)
     message = client.messages.create(
         model=MODEL,
         max_tokens=MAX_TOKENS,
