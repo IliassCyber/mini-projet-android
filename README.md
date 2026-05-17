@@ -89,17 +89,29 @@ $sdk = "$env:LOCALAPPDATA\Android\Sdk"
 ### 1. Cloner / récupérer le projet
 ```
 mini-projet-android/
+├── __pycache__/
+├── .claude/
+├── venv/
+├── Android-InsecureBankv2/
+├── Damn-Vulnerable-Bank/
 ├── apks/
 │   ├── dvba.apk
 │   └── app-debug.apk
-├── main.py
-├── static_analyzer.py
-├── dynamic_analyzer.py
-├── ai_engine.py
-├── report_generator.py
+├── output/
+├── results/
+├── .env
+├── .gitignore
 ├── addon.py
+├── ai_engine.py
+├── cookie_scanner.py
+├── dynamic_analyzer.py
+├── main.py
+├── README.md
+├── report_generator.py
 ├── requirements.txt
-└── .env
+├── session_scanner.py
+├── static_analyzer.py
+└── storage_scanner.py
 ```
 
 ### 2. Installer les dépendances Python
@@ -118,35 +130,45 @@ Obtenir une clé sur : https://console.anthropic.com → API Keys
 ---
 
 ## Structure du projet
-
 ```
 mini-projet-android/
 │
 ├── apks/                        # APKs à analyser (ne pas modifier)
-│   ├── dvba.apk                 # Damn Vulnerable Bank (JWT)
-│   └── app-debug.apk            # InsecureBankv2 (HTTP form auth)
+│   ├── dvba.apk                # Damn Vulnerable Bank (JWT)
+│   └── app-debug.apk           # InsecureBankv2 (HTTP form auth)
 │
-├── output/                      # Créé automatiquement — sources JADX
-│   └── dvba/                    # Fichiers Java décompilés
+├── output/                      # Généré automatiquement (JADX)
+│   └── dvba/                   # Code Java décompilé des APKs
 │
-├── results/                     # Créé automatiquement — rapports
+├── results/                     # Rapports générés automatiquement
 │   ├── dvba_report.pdf
 │   ├── dvba_results.json
 │   ├── app-debug_report.pdf
 │   └── app-debug_results.json
 │
-├── main.py                      # Point d'entrée CLI
-├── static_analyzer.py           # Module 1 : JADX + regex
-├── dynamic_analyzer.py          # Module 2 : tests API
-├── addon.py                     # Addon mitmproxy (architecture)
-├── ai_engine.py                 # Module 3 : Claude API
-├── report_generator.py          # Module 4 : PDF + JSON
-├── requirements.txt
-├── .env                         # Clé API (ne pas versionner)
-└── .env.example                 # Template
+├── Android-InsecureBankv2/      # Projet Android vulnérable (source)
+├── Damn-Vulnerable-Bank/        # Application Android vulnérable (source)
+│
+├── addon.py                     # Add-on mitmproxy (interception trafic)
+├── ai_engine.py                # Analyse intelligente via LLM (Claude API)
+├── static_analyzer.py          # Analyse statique (JADX + regex)
+├── dynamic_analyzer.py         # Analyse dynamique (API / runtime tests)
+├── cookie_scanner.py           # Détection des cookies sensibles
+├── session_scanner.py          # Analyse des sessions/auth
+├── storage_scanner.py          # Analyse stockage local (SharedPrefs, files)
+├── report_generator.py         # Génération des rapports PDF + JSON
+│
+├── main.py                     # Point d’entrée CLI du framework
+├── requirements.txt            # Dépendances Python
+│
+├── .env                        # Variables sensibles (API keys) - ignoré Git
+├── .env.example                # Template de configuration
+│
+├── venv/                       # Environnement virtuel (ignoré Git)
+├── __pycache__/               # Cache Python (ignoré Git)
+├── .gitignore                 # Fichiers exclus du versioning
+└── README.md
 ```
-
----
 
 ## APKs cibles
 
