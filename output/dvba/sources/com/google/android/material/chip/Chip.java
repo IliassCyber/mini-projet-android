@@ -280,7 +280,7 @@ public class Chip extends g implements b.a, n {
             int r1 = r10.getAction()
             r6 = 7
             r7 = 256(0x100, float:3.59E-43)
-            r8 = 128(0x80, float:1.794E-43)
+            r8 = 128(0x80, float:1.8E-43)
             if (r1 == r6) goto L89
             r6 = 9
             if (r1 == r6) goto L89

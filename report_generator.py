@@ -462,6 +462,7 @@ def _section_storage(pdf: SecurityPDF, storage: dict):
         pdf.set_fill_color(*bg)
         pdf.set_text_color(*COL_WHITE)
         pdf.set_font("Helvetica", "B", 8)
+        pdf.set_text_color(*COL_TEXT)
         pdf.cell(55, 6, _t(label), border=1, fill=False,
                  new_x="RIGHT", new_y="TOP",
                  align="L")

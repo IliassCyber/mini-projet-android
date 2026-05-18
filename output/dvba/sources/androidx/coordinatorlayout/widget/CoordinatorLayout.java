@@ -1426,7 +1426,7 @@ public class CoordinatorLayout extends ViewGroup implements b.i.m.g, b.i.m.h {
         jadx.core.utils.exceptions.JadxRuntimeException: Code variable not set in r4v7 android.view.View
         	at jadx.core.dex.instructions.args.SSAVar.getCodeVar(SSAVar.java:236)
         	at jadx.core.dex.visitors.typeinference.FinishTypeInference.lambda$visit$0(FinishTypeInference.java:27)
-        	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+        	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
         	at jadx.core.dex.visitors.typeinference.FinishTypeInference.visit(FinishTypeInference.java:22)
         */
     public final void u() {
