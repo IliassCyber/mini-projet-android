@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APK Security Analyzer</title>
+<style>
+:root {
+  --blue:       #1a6dff;
+  --blue-light: #e8f0ff;
+  --blue-mid:   #3d85ff;
+  --blue-dark:  #0047cc;
+  --text:       #0d1117;
+  --text-sec:   #5a6a7a;
+  --text-muted: #8a9aaa;
+  --border:     #e2e8f0;
+  --bg:         #ffffff;
+  --bg-sec:     #f7f9fc;
+  --bg-ter:     #f0f4fa;
+  --red:        #d92b3a;
+  --red-light:  #fff0f1;
+  --orange:     #c45000;
+  --orange-light:#fff4ed;
+  --green:      #1a7a3c;
+  --green-light:#edfbf3;
+  --radius:     10px;
+  --radius-lg:  16px;
+  --shadow:     0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg-sec);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* NAV */
+nav {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+}
+.nav-logo svg { color: var(--blue); }
+.nav-badge {
+  background: var(--blue-light);
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+/* LAYOUT */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+.layout { display: grid; grid-template-columns: 340px 1fr; gap: 1.5rem; align-items: start; }
+
+/* PANELS */
+.panel {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.panel-header {
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+.panel-header svg { color: var(--blue); }
+.panel-body { padding: 1.25rem; }
+
+/* UPLOAD ZONE */
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 2rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg-sec);
+}
+.upload-zone:hover, .upload-zone.drag { border-color: var(--blue); background: var(--blue-light); }
+.upload-zone svg { color: var(--blue); margin-bottom: 10px; }
+.upload-zone p { color: var(--text-sec); font-size: 13px; }
+.upload-zone strong { color: var(--text); }
+.file-name {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--blue-light);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--blue-dark);
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+#fileInput { display: none; }
+
+/* OPTIONS */
+.options { margin: 1rem 0; }
+.option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.option-row:last-child { border-bottom: none; }
+.option-label { color: var(--text-sec); }
+.toggle {
+  width: 36px; height: 20px;
+  background: var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  border: none;
+  outline: none;
+}
+.toggle.on { background: var(--blue); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 14px; height: 14px;
+  background: white;
+  border-radius: 50%;
+  top: 3px; left: 3px;
+  transition: left 0.2s;
+}
+.toggle.on::after { left: 19px; }
+
+/* BUTTON */
+.btn-scan {
+  width: 100%;
+  padding: 11px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-scan:hover { background: var(--blue-mid); }
+.btn-scan:active { transform: scale(0.99); }
+.btn-scan:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; transform: none; }
+
+/* HISTORY */
+.history-item {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.history-item:hover { border-color: var(--blue); background: var(--blue-light); }
+.history-item.active { border-color: var(--blue); background: var(--blue-light); }
+.hist-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.hist-dot.done { background: var(--green); }
+.hist-dot.running { background: var(--blue); animation: pulse 1s infinite; }
+.hist-dot.error { background: var(--red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.hist-info { flex: 1; min-width: 0; }
+.hist-name { font-weight: 500; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-date { font-size: 11px; color: var(--text-muted); }
+.hist-score {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.score-red { background: var(--red-light); color: var(--red); }
+.score-green { background: var(--green-light); color: var(--green); }
+
+/* RESULTS */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+}
+.empty-state svg { margin-bottom: 1rem; color: var(--border); }
+.empty-state p { font-size: 14px; }
+
+/* PROGRESS */
+.progress-wrap { display: none; }
+.progress-steps { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+.step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  background: var(--bg-sec);
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.step.active { background: var(--blue-light); border-color: var(--blue); color: var(--blue-dark); }
+.step.done { background: var(--green-light); border-color: #b0e0c0; color: var(--green); }
+.step.error { background: var(--red-light); border-color: #ffc0c5; color: var(--red); }
+.step-icon { width: 18px; text-align: center; flex-shrink: 0; font-size: 13px; }
+.log-box {
+  background: #0d1117;
+  border-radius: var(--radius);
+  padding: 1rem;
+  height: 180px;
+  overflow-y: auto;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 11px;
+  color: #8b949e;
+  margin-top: 1rem;
+}
+.log-line { padding: 1px 0; }
+.log-line.ok { color: #3fb950; }
+.log-line.err { color: #f85149; }
+.log-line.warn { color: #d29922; }
+
+/* RESULTS DISPLAY */
+.results-wrap { display: none; }
+.score-hero {
+  text-align: center;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+}
+.score-hero.critical { background: var(--red-light); border: 1px solid #ffc0c5; }
+.score-hero.ok { background: var(--green-light); border: 1px solid #b0e0c0; }
+.score-number { font-size: 56px; font-weight: 700; line-height: 1; }
+.score-number.critical { color: var(--red); }
+.score-number.ok { color: var(--green); }
+.score-label { font-size: 13px; color: var(--text-sec); margin-top: 4px; }
+.score-label strong { color: var(--text); }
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+.meta-card {
+  background: var(--bg-sec);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.meta-card-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.meta-card-value { font-size: 18px; font-weight: 600; color: var(--text); }
+
+.section-tab-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.stab {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-sec);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.stab:hover { color: var(--text); }
+.stab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+.stab-panel { display: none; }
+.stab-panel.active { display: block; }
+
+/* FINDINGS TABLE */
+.findings-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.findings-table th {
+  text-align: left;
+  padding: 8px 10px;
+  background: var(--bg-sec);
+  color: var(--text-sec);
+  font-weight: 600;
+  font-size: 11px;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.findings-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--text);
+}
+.findings-table tr:last-child td { border-bottom: none; }
+.findings-table tr:hover td { background: var(--bg-sec); }
+
+.sev-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sev-CRITIQUE { background: var(--red-light); color: var(--red); }
+.sev-ELEVE { background: var(--orange-light); color: var(--orange); }
+.sev-MOYEN { background: #fffbea; color: #8a6500; }
+.sev-INFO { background: var(--blue-light); color: var(--blue-dark); }
+
+/* MASVS BARS */
+.masvs-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.masvs-label { font-size: 12px; font-weight: 500; width: 130px; flex-shrink: 0; color: var(--text); }
+.masvs-bar-bg { flex: 1; height: 8px; background: var(--bg-ter); border-radius: 4px; overflow: hidden; }
+.masvs-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.masvs-score { font-size: 12px; font-weight: 600; width: 36px; text-align: right; flex-shrink: 0; }
+
+/* BOOL BADGES */
+.bool-oui { background: var(--green-light); color: var(--green); padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+.bool-non { background: var(--red-light); color: var(--red); padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+
+/* CHECKLIST */
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.check-item:last-child { border-bottom: none; }
+.check-box {
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  background: var(--bg-sec);
+}
+
+/* DOWNLOAD BTN */
+.btn-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--blue);
+  color: white;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s;
+  margin-top: 1rem;
+}
+.btn-dl:hover { background: var(--blue-mid); }
+
+/* SPINNER */
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.no-data { color: var(--text-muted); font-size: 12px; padding: 1rem 0; }
+
+/* DYNAMIC FLAGS */
+.dyn-table { width: 100%; border-collapse: collapse; }
+.dyn-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.dyn-table td:first-child { color: var(--text-sec); font-weight: 500; width: 200px; }
+.dyn-table tr:last-child td { border-bottom: none; }
+
+/* CRITERIA */
+.criteria-item {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.6;
+}
+.criteria-item:last-child { border-bottom: none; }
+.criteria-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  background: var(--blue-light);
+  color: var(--blue-dark);
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+    APK Security Analyzer
+    <span class="nav-badge">MASVS v2</span>
+  </div>
+  <span style="font-size:12px;color:var(--text-muted);">Auth &amp; Session Security</span>
+</nav>
+
+<div class="container">
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div>
+      <!-- Upload panel -->
+      <div class="panel" style="margin-bottom:1.5rem;">
+        <div class="panel-header">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Nouveau scan
+        </div>
+        <div class="panel-body">
+          <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 9h6M9 13h4"/></svg>
+            <p><strong>Déposez votre APK ici</strong></p>
+            <p style="margin-top:4px;font-size:12px;">ou cliquez pour parcourir</p>
+          </div>
+          <div class="file-name" id="fileName">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
+            <span id="fileNameText"></span>
+          </div>
+          <input type="file" id="fileInput" accept=".apk">
+
+          <div class="options">
+            <div class="option-row">
+              <span class="option-label">Ignorer analyse dynamique</span>
+              <button class="toggle" id="toggleSkipDyn" onclick="this.classList.toggle('on')"></button>
+            </div>
+            <div class="option-row">
+              <span class="option-label">Analyse statique uniquement</span>
+              <button class="toggle" id="toggleStaticOnly" onclick="this.classList.toggle('on')"></button>
+            </div>
+          </div>
+
+          <button class="btn-scan" id="btnScan" onclick="startScan()" disabled>
+            <div class="spinner" id="spinner"></div>
+            <svg id="scanIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Lancer le scan
+          </button>
+        </div>
+      </div>
+
+      <!-- History panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Historique
+        </div>
+        <div class="panel-body" id="historyList">
+          <p class="no-data">Aucun scan effectué</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div>
+      <!-- Empty state -->
+      <div class="panel" id="emptyState">
+        <div class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <p style="font-weight:500;color:var(--text-sec);">Aucun scan sélectionné</p>
+          <p style="margin-top:6px;font-size:13px;">Uploadez un APK et lancez un scan pour voir les résultats.</p>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="panel" id="progressWrap" style="display:none;">
+        <div class="panel-header">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Scan en cours…
+        </div>
+        <div class="panel-body">
+          <div class="progress-steps" id="progressSteps"></div>
+          <div class="log-box" id="logBox"></div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div id="resultsWrap" style="display:none;">
+
+        <!-- Score hero -->
+        <div class="score-hero" id="scoreHero">
+          <div class="score-number" id="scoreNumber">—</div>
+          <div class="score-label">Score global · <strong id="scoreLabel">—</strong></div>
+        </div>
+
+        <!-- Meta cards -->
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="meta-card-label">Vulnérabilités</div>
+            <div class="meta-card-value" id="metaVulns">—</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-card-label">Fichiers analysés</div>
+            <div class="meta-card-value" id="metaFiles">—</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-card-label">Type d'auth</div>
+            <div class="meta-card-value" id="metaAuth">—</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="panel">
+          <div class="panel-body" style="padding-bottom:0;">
+            <div class="section-tab-bar">
+              <div class="stab active" onclick="showStab('resume')">Résumé IA</div>
+              <div class="stab" onclick="showStab('static')">Statique</div>
+              <div class="stab" onclick="showStab('dynamic')">Dynamique</div>
+              <div class="stab" onclick="showStab('storage')">Stockage</div>
+              <div class="stab" onclick="showStab('masvs')">Scores MASVS</div>
+              <div class="stab" onclick="showStab('checklist')">Checklist</div>
+              <div class="stab" onclick="showStab('criteria')">Critères</div>
+            </div>
+          </div>
+
+          <div class="panel-body">
+
+            <!-- Résumé -->
+            <div class="stab-panel active" id="stab-resume">
+              <p id="summaryText" style="font-size:13px;line-height:1.8;color:var(--text-sec);">Analyse IA non disponible.</p>
+              <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);">
+                <button class="btn-dl" id="btnPdf" onclick="downloadPdf()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Télécharger le rapport PDF
+                </button>
+              </div>
+            </div>
+
+            <!-- Statique -->
+            <div class="stab-panel" id="stab-static">
+              <div style="overflow-x:auto;">
+                <table class="findings-table" id="staticTable">
+                  <thead><tr>
+                    <th>Sévérité</th>
+                    <th>Type</th>
+                    <th>Fichier</th>
+                    <th>Détail</th>
+                  </tr></thead>
+                  <tbody id="staticBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Dynamique -->
+            <div class="stab-panel" id="stab-dynamic">
+              <table class="dyn-table" id="dynTable">
+                <tbody id="dynBody"></tbody>
+              </table>
+              <div style="margin-top:1rem;" id="dynFindings"></div>
+            </div>
+
+            <!-- Stockage -->
+            <div class="stab-panel" id="stab-storage">
+              <div style="display:flex;gap:1rem;margin-bottom:1rem;">
+                <div style="flex:1;padding:12px;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-size:13px;font-weight:500;">EncryptedSharedPreferences</span>
+                  <span id="encPref">—</span>
+                </div>
+                <div style="flex:1;padding:12px;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-size:13px;font-weight:500;">Android Keystore</span>
+                  <span id="keystore">—</span>
+                </div>
+              </div>
+              <div style="overflow-x:auto;">
+                <table class="findings-table">
+                  <thead><tr><th>Sévérité</th><th>Type</th><th>Fichier</th><th>Recommandation</th></tr></thead>
+                  <tbody id="storageBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- MASVS -->
+            <div class="stab-panel" id="stab-masvs">
+              <div id="masvsRows"></div>
+            </div>
+
+            <!-- Checklist -->
+            <div class="stab-panel" id="stab-checklist">
+              <div id="checklistItems"></div>
+            </div>
+
+            <!-- Critères -->
+            <div class="stab-panel" id="stab-criteria">
+              <div id="criteriaItems"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let currentScanId = null;
+let pollInterval  = null;
+let selectedFile  = null;
+
+const STEPS = [
+  { key: '1/7', label: 'Analyse statique (JADX + patterns)' },
+  { key: '2/7', label: 'Analyse dynamique (JWT/API)' },
+  { key: '3/7', label: 'Cookie Security Scanner' },
+  { key: '4/7', label: 'Android Storage Scanner' },
+  { key: '5/7', label: 'Session Scanner' },
+  { key: '6/7', label: 'Analyse IA — Claude' },
+  { key: '7/7', label: 'Génération des rapports' },
+];
+
+// File input
+document.getElementById('fileInput').addEventListener('change', e => {
+  selectedFile = e.target.files[0];
+  if (selectedFile) {
+    document.getElementById('fileNameText').textContent = selectedFile.name;
+    document.getElementById('fileName').style.display = 'flex';
+    document.getElementById('btnScan').disabled = false;
+  }
+});
+
+// Drag & drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f && f.name.endsWith('.apk')) {
+    selectedFile = f;
+    document.getElementById('fileNameText').textContent = f.name;
+    document.getElementById('fileName').style.display = 'flex';
+    document.getElementById('btnScan').disabled = false;
+  }
+});
+
+async function startScan() {
+  if (!selectedFile) return;
+
+  const fd = new FormData();
+  fd.append('apk', selectedFile);
+  fd.append('skip_dynamic', document.getElementById('toggleSkipDyn').classList.contains('on') ? 'true' : 'false');
+  fd.append('static_only',  document.getElementById('toggleStaticOnly').classList.contains('on') ? 'true' : 'false');
+
+  document.getElementById('btnScan').disabled = true;
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('scanIcon').style.display = 'none';
+
+  const res  = await fetch('/api/scan', { method: 'POST', body: fd });
+  const data = await res.json();
+
+  document.getElementById('spinner').style.display = 'none';
+  document.getElementById('scanIcon').style.display = 'block';
+  document.getElementById('btnScan').disabled = false;
+
+  if (data.error) { alert(data.error); return; }
+
+  currentScanId = data.scan_id;
+  showProgress();
+  pollScan(data.scan_id);
+  refreshHistory();
+}
+
+function showProgress() {
+  document.getElementById('emptyState').style.display   = 'none';
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('resultsWrap').style.display  = 'none';
+
+  const container = document.getElementById('progressSteps');
+  container.innerHTML = STEPS.map(s =>
+    `<div class="step" id="step-${s.key}">
+      <span class="step-icon">⬜</span>
+      <span>${s.label}</span>
+    </div>`
+  ).join('');
+  document.getElementById('logBox').innerHTML = '';
+}
+
+function pollScan(scanId) {
+  if (pollInterval) clearInterval(pollInterval);
+  pollInterval = setInterval(async () => {
+    const res  = await fetch(`/api/scan/${scanId}`);
+    const scan = await res.json();
+    updateProgress(scan);
+    refreshHistory();
+    if (scan.status !== 'running') {
+      clearInterval(pollInterval);
+      if (scan.results) showResults(scan);
+    }
+  }, 1500);
+}
+
+function updateProgress(scan) {
+  const logBox = document.getElementById('logBox');
+  logBox.innerHTML = scan.log.map(l => {
+    let cls = '';
+    if (l.includes('OK') || l.includes('✓'))  cls = 'ok';
+    if (l.includes('ERR') || l.includes('!!')) cls = 'err';
+    if (l.includes('WARN'))                    cls = 'warn';
+    return `<div class="log-line ${cls}">${escHtml(l)}</div>`;
+  }).join('');
+  logBox.scrollTop = logBox.scrollHeight;
+
+  STEPS.forEach(s => {
+    const el   = document.getElementById(`step-${s.key}`);
+    if (!el) return;
+    const done = scan.log.some(l => l.includes(`[${s.key}]`) && (l.includes('OK') || l.includes('ERR') || l.includes('!!')));
+    const active = scan.log.some(l => l.includes(`[${s.key}]`) && !done);
+    const err  = scan.log.some(l => l.includes(`[${s.key}]`) && l.includes('ERR'));
+    el.className = 'step' + (err ? ' error' : done ? ' done' : active ? ' active' : '');
+    el.querySelector('.step-icon').textContent = err ? '❌' : done ? '✅' : active ? '🔄' : '⬜';
+  });
+}
+
+function showResults(scan) {
+  document.getElementById('progressWrap').style.display = 'none';
+  document.getElementById('resultsWrap').style.display  = 'block';
+
+  const r       = scan.results || {};
+  const st      = r.static  || {};
+  const dyn     = r.dynamic || {};
+  const ai      = r.ai      || {};
+  const storage = r.storage || {};
+
+  // Score hero
+  const score = st.score ?? 0;
+  const hero  = document.getElementById('scoreHero');
+  hero.className = 'score-hero ' + (score >= 7 ? 'ok' : 'critical');
+  const sNum  = document.getElementById('scoreNumber');
+  sNum.textContent = `${score}/10`;
+  sNum.className   = 'score-number ' + (score >= 7 ? 'ok' : 'critical');
+  document.getElementById('scoreLabel').textContent =
+    score >= 7 ? 'Sécurité satisfaisante' : score >= 4 ? 'Risque modéré' : 'CRITIQUE';
+
+  // Meta
+  const allCount = (st.findings||[]).length + (dyn.findings||[]).length +
+    ((r.cookie||{}).findings||[]).length + (storage.findings||[]).length;
+  document.getElementById('metaVulns').textContent = allCount;
+  document.getElementById('metaFiles').textContent = (st.files_scanned||0).toLocaleString();
+  document.getElementById('metaAuth').textContent  = st.auth_type || '—';
+
+  // Résumé IA
+  document.getElementById('summaryText').textContent = ai.summary || 'Analyse IA non disponible.';
+  document.getElementById('btnPdf').style.display = scan.pdf ? 'inline-flex' : 'none';
+
+  // Static findings
+  const sb = document.getElementById('staticBody');
+  sb.innerHTML = (st.findings || []).map(f =>
+    `<tr>
+      <td><span class="sev-badge sev-${f.severity}">${f.severity}</span></td>
+      <td>${escHtml(f.type||'')}</td>
+      <td style="font-family:monospace;font-size:11px;">${escHtml((f.file||'').split('\\').pop())}</td>
+      <td style="color:var(--text-sec);font-size:11px;">${escHtml((f.detail||'').substring(0,80))}</td>
+    </tr>`
+  ).join('') || '<tr><td colspan="4" class="no-data">Aucun finding</td></tr>';
+
+  // Dynamic
+  const db = document.getElementById('dynBody');
+  db.innerHTML = `
+    <tr><td>Mode</td><td>${escHtml(dyn.mode||'—')}</td></tr>
+    <tr><td>Déconnexion effective</td><td>${boolBadge(dyn.logout_effective)}</td></tr>
+    <tr><td>Durée de vie du token</td><td>${dyn.token_lifetime_minutes != null ? dyn.token_lifetime_minutes+' min' : '<span class="bool-non">Indéfinie</span>'}</td></tr>
+    <tr><td>Rotation des refresh tokens</td><td>${boolBadge(dyn.rotation_enforced)}</td></tr>
+  `;
+  const df = document.getElementById('dynFindings');
+  df.innerHTML = (dyn.findings||[]).length > 0
+    ? '<div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Vulnérabilités détectées</div>'
+      + (dyn.findings||[]).map(f =>
+        `<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;">
+          <span class="sev-badge sev-${f.severity}" style="flex-shrink:0;">${f.severity}</span>
+          <span>${escHtml(f.type||'')} ${f.detail ? '— '+escHtml(f.detail) : ''}</span>
+        </div>`
+      ).join('') : '';
+
+  // Storage
+  const encPref = storage.encrypted_prefs ?? storage.uses_encrypted_prefs ?? false;
+  const ks      = storage.uses_keystore ?? storage.keystore ?? false;
+  document.getElementById('encPref').innerHTML  = encPref ? '<span class="bool-oui">OUI</span>' : '<span class="bool-non">NON</span>';
+  document.getElementById('keystore').innerHTML = ks      ? '<span class="bool-oui">OUI</span>' : '<span class="bool-non">NON</span>';
+  document.getElementById('storageBody').innerHTML = (storage.findings||[]).map(f =>
+    `<tr>
+      <td><span class="sev-badge sev-${f.severity}">${f.severity}</span></td>
+      <td>${escHtml(f.type||'')}</td>
+      <td style="font-family:monospace;font-size:11px;">${escHtml((f.file||'').split('\\').pop())}</td>
+      <td style="color:var(--text-sec);font-size:11px;">${escHtml((f.fix||f.detail||'').substring(0,80))}</td>
+    </tr>`
+  ).join('') || '<tr><td colspan="4" class="no-data">Aucun finding</td></tr>';
+
+  // MASVS scores
+  const ds = ai.domain_scores || {};
+  const masvsRows = document.getElementById('masvsRows');
+  const domainNames = {
+    AUTH: 'MASVS-AUTH', STORAGE: 'MASVS-STORAGE',
+    NETWORK: 'MASVS-NETWORK', CRYPTO: 'MASVS-CRYPTO'
+  };
+  const extras = [
+    { label: 'Cookie Security', score: (r.cookie||{}).score ?? 10 },
+    { label: 'Storage Security', score: storage.score ?? 0 },
+  ];
+  const allDomains = Object.entries(domainNames).map(([k,label]) =>
+    ({ label, score: ds[k] ?? 10 })
+  ).concat(extras);
+
+  masvsRows.innerHTML = allDomains.map(({ label, score }) => {
+    const pct   = score * 10;
+    const color = score >= 7 ? '#1a7a3c' : score >= 4 ? '#c45000' : '#d92b3a';
+    return `<div class="masvs-row">
+      <div class="masvs-label">${label}</div>
+      <div class="masvs-bar-bg">
+        <div class="masvs-bar-fill" style="width:${pct}%;background:${color};"></div>
+      </div>
+      <div class="masvs-score" style="color:${color};">${score}/10</div>
+    </div>`;
+  }).join('');
+
+  // Checklist
+  const cl = document.getElementById('checklistItems');
+  cl.innerHTML = (ai.checklist||[]).length > 0
+    ? (ai.checklist||[]).map(item =>
+        `<div class="check-item"><div class="check-box"></div><span>${escHtml(item)}</span></div>`
+      ).join('')
+    : '<p class="no-data">Checklist non disponible (clé API requise).</p>';
+
+  // Critères
+  const crit = [...(ai.acceptance_criteria||[]), ...(ai.gherkin_criteria||[]), ...(ai.structured_acceptance_criteria||[])];
+  const ci   = document.getElementById('criteriaItems');
+  ci.innerHTML = crit.length > 0
+    ? crit.map((item, i) =>
+        `<div class="criteria-item"><span class="criteria-num">${i+1}</span>${escHtml(item)}</div>`
+      ).join('')
+    : '<p class="no-data">Critères non disponibles (clé API requise).</p>';
+}
+
+async function refreshHistory() {
+  const res   = await fetch('/api/scans');
+  const scans = await res.json();
+  const list  = document.getElementById('historyList');
+  if (scans.length === 0) {
+    list.innerHTML = '<p class="no-data">Aucun scan effectué</p>';
+    return;
+  }
+  list.innerHTML = scans.map(s => {
+    const score = s.results?.static?.score;
+    const badge = score != null
+      ? `<span class="hist-score ${score >= 7 ? 'score-green' : 'score-red'}">${score}/10</span>`
+      : '';
+    const date  = new Date(s.started_at).toLocaleString('fr-FR', { dateStyle:'short', timeStyle:'short' });
+    return `<div class="history-item ${s.id === currentScanId ? 'active' : ''}" onclick="loadScan('${s.id}')">
+      <div class="hist-dot ${s.status}"></div>
+      <div class="hist-info">
+        <div class="hist-name">${escHtml(s.filename)}</div>
+        <div class="hist-date">${date}</div>
+      </div>
+      ${badge}
+    </div>`;
+  }).join('');
+}
+
+async function loadScan(scanId) {
+  currentScanId = scanId;
+  const res  = await fetch(`/api/scan/${scanId}`);
+  const scan = await res.json();
+  refreshHistory();
+  if (scan.status === 'running') {
+    showProgress();
+    updateProgress(scan);
+    pollScan(scanId);
+  } else if (scan.results) {
+    document.getElementById('emptyState').style.display   = 'none';
+    document.getElementById('progressWrap').style.display = 'none';
+    document.getElementById('resultsWrap').style.display  = 'block';
+    showResults(scan);
+  }
+}
+
+async function downloadPdf() {
+  if (!currentScanId) return;
+  window.location.href = `/api/scan/${currentScanId}/pdf`;
+}
+
+function showStab(name) {
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.stab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.stab[onclick="showStab('${name}')"]`).classList.add('active');
+  document.getElementById(`stab-${name}`).classList.add('active');
+}
+
+function boolBadge(val) {
+  if (val === true)  return '<span class="bool-oui">OUI</span>';
+  if (val === false) return '<span class="bool-non">NON</span>';
+  return '<span style="color:var(--text-muted);">Non testé</span>';
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Init
+refreshHistory();
+</script>
+</body>
+</html>

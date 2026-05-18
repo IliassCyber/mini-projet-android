@@ -31,7 +31,7 @@ public class PlayerEntityCreator implements Parcelable.Creator<PlayerEntity> {
 
     /* JADX WARN: Unreachable blocks removed: 1, instructions: 1 */
     @Override // android.os.Parcelable.Creator
-    /* JADX INFO: renamed from: zzds */
+    /* JADX INFO: renamed from: zzds, reason: merged with bridge method [inline-methods] */
     public PlayerEntity createFromParcel(Parcel parcel) {
         int iZzab = zza.zzab(parcel);
         long jZzi = 0;
