@@ -3,6 +3,7 @@
 *.env
 .env.local
 .env.*.local
+.env*
 
 # Sorties générées à l'exécution
 output/
