@@ -26,8 +26,9 @@ import datetime, time
 # Configuration des endpoints
 # ---------------------------------------------------------------------------
 
-DVBA_BASE    = "http://localhost:3000"   # DVBA backend port
-IBANK_BASE   = "http://localhost:8888"  # InsecureBankv2 backend port
+import os
+DVBA_BASE    = os.getenv("DVBA_URL",    "http://localhost:3000")
+IBANK_BASE   = os.getenv("INSECURE_URL","http://localhost:8888")
 PROXY_PORT   = 8080
 EMULATOR_IP  = "10.0.2.2"    # adresse de la machine hôte vue depuis l'émulateur
 

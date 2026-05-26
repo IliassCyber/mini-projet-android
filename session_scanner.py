@@ -22,7 +22,8 @@ import requests
 # Configuration
 # ---------------------------------------------------------------------------
 
-IBANK_BASE  = "http://localhost:8888"
+import os
+IBANK_BASE  = os.getenv("INSECURE_URL", "http://localhost:8888")
 DEFAULT_CREDS = {"username": "dinesh", "password": "Dinesh@123$"}
 SESSION_TIMEOUT_MINUTES = 30  # OWASP recommande ≤ 30 min d'inactivité
 

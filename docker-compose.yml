@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+
+  mobilesec:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DVBA_URL=http://dvba-backend:3000
+      - INSECURE_URL=http://insecurebank:8888
+    volumes:
+      - ./apks:/app/apks
+      - ./results:/app/results
+    depends_on:
+      - dvba-backend
+      - insecurebank
+    networks:
+      - security-net
+
+  dvba-backend:
+    build: ./Damn-Vulnerable-Bank/BackendServer
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    networks:
+      - security-net
+
+  mysql:
+    image: mysql:8.0.21
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: dvba
+    volumes:
+      - ./Damn-Vulnerable-Bank/BackendServer/database:/docker-entrypoint-initdb.d
+    networks:
+      - security-net
+
+  insecurebank:
+    build: ./Android-InsecureBankv2/AndroLabServer
+    restart: always
+    ports:
+      - "8888:8888"
+    networks:
+      - security-net
+
+networks:
+  security-net:
+    driver: bridge

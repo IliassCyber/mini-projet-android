@@ -4,6 +4,7 @@
 .env.local
 .env.*.local
 .env*
+!.env.example
 
 # Sorties générées à l'exécution
 output/

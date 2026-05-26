@@ -1,335 +1,339 @@
-# Auth & Session Security Analyzer
+# MobileSec — Analyseur de Sécurité Multi-Couches pour Android
 
-Outil d'audit de sécurité Android qui analyse l'authentification et la gestion de session de deux APKs vulnérables, mappe les résultats sur l'OWASP MASVS et génère un rapport PDF + JSON enrichi par l'IA Claude.
+[![Release](https://img.shields.io/badge/release-v2.0-blue)](https://github.com/IliassCyber/mini-projet-android/releases/tag/v2.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10--3.13-blue)](https://python.org)
+[![OWASP MASVS](https://img.shields.io/badge/OWASP-MASVS%20v2-green)](https://mas.owasp.org/MASVS/)
 
----
+MobileSec est un framework open-source d'analyse de sécurité automatisée ciblant les vulnérabilités d'**authentification** et de **gestion de session** dans les applications Android. Il combine décompilation statique (JADX), tests dynamiques d'API, inspection OWASP des cookies, analyse du stockage Android, analyse avancée des sessions, et remédiation assistée par l'API Claude.
 
-## Table des matières
-
-1. [Vue d'ensemble](#vue-densemble)
-2. [Prérequis](#prérequis)
-3. [Installation](#installation)
-4. [Structure du projet](#structure-du-projet)
-5. [APKs cibles](#apks-cibles)
-6. [Utilisation](#utilisation)
-7. [Modules](#modules)
-8. [Rapport généré](#rapport-généré)
-9. [Troubleshooting](#troubleshooting)
+> Évalué sur InsecureBankv2 et DVBA : **145 findings détectés**, rappel **0,92**, F1 **0,52**.
 
 ---
 
-## Vue d'ensemble
+## Métadonnées
+
+| Nr. | Description | Information |
+|-----|-------------|-------------|
+| C1 | Version | v2.0 |
+| C2 | Dépôt GitHub | https://github.com/IliassCyber/mini-projet-android |
+| C3 | Licence | MIT License |
+| C4 | Versionnage | Git |
+| C5 | Langages & outils | Python 3.13, JADX 1.5.5, Flask 3.0, mitmproxy 10.2, API Anthropic Claude, PyJWT 2.8 |
+| C6 | Prérequis | Windows 10 / Ubuntu 22.04, Python 3.10–3.13, JADX dans le PATH, Docker 24.0+ |
+| C7 | Documentation | [README.md](README.md) |
+| C8 | Tag release | v2.0 |
+
+---
+
+## Architecture — Pipeline 7 Modules
 
 ```
-APK  ──►  [1] Analyse statique (JADX)
-               ↓ findings
-          [2] Analyse dynamique (API directe)
-               ↓ findings
-          [3] IA Claude (checklist MASVS + critères)
-               ↓ résultats
-          [4] Rapport PDF + JSON
+APK (fichier d'entrée)
+ │
+ ▼
+[1] Static Analyzer      — JADX + 12 patterns regex (CRITIQUE / ÉLEVÉ / MOYEN)
+ │  auth_type + findings[]
+ ▼
+[2] Dynamic Analyzer     — Tests HTTP directs (JWT replay, brute force, logout)
+ │  dynamic_findings[]
+ ▼
+[3] Cookie Scanner       — 7 contrôles OWASP Set-Cookie (HttpOnly, Secure, SameSite…)
+ │  cookie_findings[]
+ ▼
+[4] Storage Scanner      — 8 patterns stockage (SharedPrefs, Keystore, SQLite)
+ │  storage_findings[]
+ ▼
+[5] Session Scanner      — 6 tests MASVS-AUTH (entropie, fixation, timeout, logout)
+ │  session_findings[]
+ ▼
+[6] AI Engine            — Claude API → Checklist MASVS + critères Gherkin + résumé
+ │  checklist + criteria + summary
+ ▼
+[7] Report Generator     — PDF 9 sections + JSON structuré
+    ↓             ↓
+ rapport.pdf   results.json
 ```
 
-| Module | Technologie | Rôle |
-|---|---|---|
-| Analyse statique | JADX + regex Python | Détecte vulnérabilités dans le bytecode |
-| Analyse dynamique | requests Python | Tests JWT/API en conditions réelles |
-| IA | Claude API (claude-sonnet-4-6) | Checklist MASVS + résumé exécutif |
-| Rapport | fpdf2 | PDF 6 sections + JSON structuré |
+| Module | Fichier | Technologie | MASVS couverts |
+|--------|---------|-------------|----------------|
+| Static Analyzer | `static_analyzer.py` | JADX 1.5.5 + regex | STORAGE-1/2, CRYPTO-1, NETWORK-1/2 |
+| Dynamic Analyzer | `dynamic_analyzer.py` | requests HTTP | AUTH-001, AUTH-007, AUTH-008 |
+| Cookie Scanner | `cookie_scanner.py` | mitmproxy 10.2 | NETWORK-1, NETWORK-2 |
+| Storage Scanner | `storage_scanner.py` | JADX + ADB | STORAGE-1, STORAGE-2 |
+| Session Scanner | `session_scanner.py` | requests HTTP | AUTH-002 à AUTH-006 |
+| AI Engine | `ai_engine.py` | Claude API | Tous domaines |
+| Report Generator | `report_generator.py` | FPDF2 | — |
+
+---
+
+## Démarrage rapide
+
+### Option A — Docker (recommandé)
+
+```bash
+# 1. Copier et configurer les variables d'environnement
+cp .env.example .env
+# Éditer .env : renseigner ANTHROPIC_API_KEY
+
+# 2. Démarrer toute la stack (MobileSec UI + DVBA + InsecureBankv2)
+docker compose up --build
+
+# 3. Ouvrir l'interface web
+# http://localhost:5000
+```
+
+### Option B — Installation locale
+
+```bash
+# 1. Créer l'environnement virtuel
+python -m venv .venv
+# Windows :
+.venv\Scripts\activate
+# Linux/macOS :
+source .venv/bin/activate
+
+# 2. Installer les dépendances Python
+pip install -r requirements.txt
+
+# 3. Configurer la clé API
+cp .env.example .env    # puis éditer .env
+
+# 4. Démarrer le backend DVBA (Docker Compose)
+cd Damn-Vulnerable-Bank/BackendServer && docker compose up -d && cd ../..
+
+# 5. Démarrer le backend InsecureBankv2
+cd Android-InsecureBankv2/AndroLabServer && pip install flask sqlalchemy simplejson && python app.py &
+
+# 6. Lancer l'interface web
+python web_server.py
+# → http://localhost:5000
+
+# Ou directement en ligne de commande :
+python main.py --apk apks/dvba.apk
+python main.py --apk apks/app-debug.apk
+```
+
+### Script de reproduction automatique
+
+```bash
+# Linux / macOS
+chmod +x reproduce.sh && ./reproduce.sh
+
+# Windows
+reproduce.bat
+```
 
 ---
 
 ## Prérequis
 
-### Outils système
-
-| Outil | Version min | Installation |
-|---|---|---|
-| Python | 3.8+ | [python.org](https://python.org) |
-| JADX | 1.5+ | `scoop install extras/jadx` |
-| ADB | 1.0.41+ | Android SDK Platform Tools |
+| Outil | Version | Installation |
+|-------|---------|-------------|
+| Python | 3.10 – 3.13 | [python.org](https://python.org) |
+| JADX | 1.5.5 | `scoop install extras/jadx` (Windows) |
 | Java | 11+ | Requis par JADX |
-| Emulateur Android | API 30+ | Android Studio → AVD Manager |
+| Docker | 24.0+ | [docker.com](https://docker.com) |
+| Docker Compose | v2+ | Inclus dans Docker Desktop |
 
-Vérifier que tout est installé :
-```powershell
-python --version
-jadx --version
-adb --version
+```bash
+# Vérifier les installations
+python --version    # Python 3.x.x
+jadx --version      # jadx - dex to java decompiler, version: 1.5.5
 java --version
-emulator -list-avds
+docker --version
 ```
-
-### Installation Scoop (Windows — recommandé)
-```powershell
-# Installer Scoop si absent
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-irm get.scoop.sh | iex
-
-# Installer JADX
-scoop bucket add extras
-scoop install extras/jadx
-```
-
-### ADB sur le PATH (si absent)
-```powershell
-$sdk = "$env:LOCALAPPDATA\Android\Sdk"
-[Environment]::SetEnvironmentVariable(
-  "PATH",
-  [Environment]::GetEnvironmentVariable("PATH","User") + ";$sdk\platform-tools;$sdk\emulator",
-  "User"
-)
-# Redémarrer le terminal
-```
-
----
-
-## Installation
-
-### 1. Cloner / récupérer le projet
-```
-mini-projet-android/
-├── __pycache__/
-├── .claude/
-├── venv/
-├── Android-InsecureBankv2/
-├── Damn-Vulnerable-Bank/
-├── apks/
-│   ├── dvba.apk
-│   └── app-debug.apk
-├── output/
-├── results/
-├── .env
-├── .gitignore
-├── addon.py
-├── ai_engine.py
-├── cookie_scanner.py
-├── dynamic_analyzer.py
-├── main.py
-├── README.md
-├── report_generator.py
-├── requirements.txt
-├── session_scanner.py
-├── static_analyzer.py
-└── storage_scanner.py
-```
-
-### 2. Installer les dépendances Python
-```powershell
-pip install -r requirements.txt
-```
-
-### 3. Configurer la clé API Claude
-Copier `.env.example` en `.env` et renseigner la clé :
-```
-ANTHROPIC_API_KEY=sk-ant-api03-VOTRE_CLE_ICI
-```
-
-Obtenir une clé sur : https://console.anthropic.com → API Keys
 
 ---
 
 ## Structure du projet
+
 ```
 mini-projet-android/
 │
-├── apks/                        # APKs à analyser (ne pas modifier)
-│   ├── dvba.apk                # Damn Vulnerable Bank (JWT)
-│   └── app-debug.apk           # InsecureBankv2 (HTTP form auth)
+├── apks/                           # APKs benchmark (versionnés)
+│   ├── dvba.apk                   # Damn Vulnerable Bank — JWT
+│   └── app-debug.apk              # InsecureBankv2 — Session Cookie
 │
-├── output/                      # Généré automatiquement (JADX)
-│   └── dvba/                   # Code Java décompilé des APKs
+├── Android-InsecureBankv2/         # Backend InsecureBankv2
+│   └── AndroLabServer/            # Flask/Python — port 8888
 │
-├── results/                     # Rapports générés automatiquement
-│   ├── dvba_report.pdf
-│   ├── dvba_results.json
-│   ├── app-debug_report.pdf
-│   └── app-debug_results.json
+├── Damn-Vulnerable-Bank/           # Backend DVBA
+│   └── BackendServer/             # Node.js + MySQL — port 3000
 │
-├── Android-InsecureBankv2/      # Projet Android vulnérable (source)
-├── Damn-Vulnerable-Bank/        # Application Android vulnérable (source)
+├── templates/                      # Templates HTML (interface web)
+├── results/                        # Rapports générés (gitignored)
+├── output/                         # Sources décompilées JADX (gitignored)
 │
-├── addon.py                     # Add-on mitmproxy (interception trafic)
-├── ai_engine.py                # Analyse intelligente via LLM (Claude API)
-├── static_analyzer.py          # Analyse statique (JADX + regex)
-├── dynamic_analyzer.py         # Analyse dynamique (API / runtime tests)
-├── cookie_scanner.py           # Détection des cookies sensibles
-├── session_scanner.py          # Analyse des sessions/auth
-├── storage_scanner.py          # Analyse stockage local (SharedPrefs, files)
-├── report_generator.py         # Génération des rapports PDF + JSON
+├── static_analyzer.py             # Module 1 — Analyse statique
+├── dynamic_analyzer.py            # Module 2 — Analyse dynamique
+├── cookie_scanner.py              # Module 3 — Scanner cookies OWASP
+├── storage_scanner.py             # Module 4 — Scanner stockage Android
+├── session_scanner.py             # Module 5 — Scanner session avancé
+├── ai_engine.py                   # Module 6 — Moteur IA (Claude API)
+├── report_generator.py            # Module 7 — Générateur de rapports
+├── main.py                        # Orchestrateur CLI pipeline
+├── web_server.py                  # Interface web Flask (port 5000)
+├── addon.py                       # Add-on mitmproxy (interception trafic)
 │
-├── main.py                     # Point d’entrée CLI du framework
-├── requirements.txt            # Dépendances Python
-│
-├── .env                        # Variables sensibles (API keys) - ignoré Git
-├── .env.example                # Template de configuration
-│
-├── venv/                       # Environnement virtuel (ignoré Git)
-├── __pycache__/               # Cache Python (ignoré Git)
-├── .gitignore                 # Fichiers exclus du versioning
-└── README.md
-```
-
-## APKs cibles
-
-### dvba.apk — Damn Vulnerable Bank
-- **Authentification** : JWT (JSON Web Token)
-- **Backend** : Node.js + MySQL, port **3000**
-- **Chiffrement API** : XOR + Base64 (clé `"amazing"` codée en dur)
-- **Vulnérabilités connues** : JWT sans `exp`, token rejouable après logout, secret JWT codé en dur
-
-**Démarrer le backend :**
-```powershell
-git clone https://github.com/rewanthtammana/Damn-Vulnerable-Bank.git
-cd "Damn-Vulnerable-Bank\BackendServer"
-docker-compose up --build
-```
-Credentials : `user1 / password1`, `admin / admin`
-
----
-
-### app-debug.apk — InsecureBankv2
-- **Authentification** : HTTP Form (credentials envoyés en clair à chaque requête)
-- **Backend** : Python Flask, port **8888**
-- **Vulnérabilités connues** : HTTP clair, pas de session, pas de rate limiting, credentials en clair
-
-**Démarrer le backend :**
-```powershell
-git clone https://github.com/dineshshetty/Android-InsecureBankv2.git
-cd "Android-InsecureBankv2\AndroLabServer"
-pip install cheroot simplejson flask flask-sqlalchemy
-python app.py
-```
-Credentials : `dinesh / Dinesh@123$`
-
-**Configurer l'émulateur Android :**
-```powershell
-# Lancer l'émulateur
-emulator -avd Medium_Phone
-
-# Installer l'APK
-adb install apks/app-debug.apk
-
-# Configurer l'accès au backend (tunnel ADB)
-adb reverse tcp:8888 tcp:8888
+├── Dockerfile                     # Image MobileSec (analyzer + web UI)
+├── docker-compose.yml             # Stack complète 4 services
+├── reproduce.sh                   # Script de reproduction Linux/macOS
+├── reproduce.bat                  # Script de reproduction Windows
+├── requirements.txt               # Dépendances Python
+├── LICENSE                        # MIT License
+├── .env.example                   # Template variables d'environnement
+└── .gitignore
 ```
 
 ---
 
-## Utilisation
+## APKs benchmark
 
-### Commandes principales
+### `dvba.apk` — Damn Vulnerable Bank (JWT)
 
-```powershell
+- **Authentification** : JWT, backend Node.js + MySQL (port 3000)
+- **Vulnérabilités connues** : JWT sans champ `exp`, token rejouable post-logout, secret JWT codé en dur, token stocké en clair dans SharedPreferences
+- **Résultats MobileSec v2.0** : 58 findings · score global 0/10 · MASVS-AUTH 1/10
+
+### `app-debug.apk` — InsecureBankv2 v2.3.1 (Session Cookie)
+
+- **Authentification** : Cookies de session, backend Flask Python (port 8888)
+- **Vulnérabilités connues** : credentials envoyés en HTTP clair, accès sans auth (`/getaccounts`), absence de rate limiting, session fixation
+- **Résultats MobileSec v2.0** : 87 findings · score global 0/10 · MASVS-AUTH 5/10
+
+---
+
+## Infrastructure Docker
+
+Le `docker-compose.yml` orchestre 4 services sur un réseau interne `security-net` :
+
+| Service | Port | Description |
+|---------|------|-------------|
+| `mobilesec` | 5000 | Interface web + pipeline d'analyse Python |
+| `dvba-backend` | 3000 | Backend Node.js DVBA |
+| `mysql` | 3306 | Base de données MySQL 8.0 (DVBA) |
+| `insecurebank` | 8888 | Backend Flask InsecureBankv2 |
+
+```bash
+# Démarrer
+docker compose up -d
+
+# Vérifier les services
+docker compose ps
+
+# Lancer une analyse depuis le conteneur
+docker compose exec mobilesec python main.py --apk apks/dvba.apk
+
+# Arrêter
+docker compose down
+```
+
+Les URLs des backends sont configurables via variables d'environnement :
+- `DVBA_URL` (défaut : `http://localhost:3000`)
+- `INSECURE_URL` (défaut : `http://localhost:8888`)
+
+---
+
+## Interface web
+
+```bash
+python web_server.py   # → http://localhost:5000
+```
+
+1. Uploader un APK via le formulaire
+2. Choisir le mode d'analyse (`--skip-dynamic`, `--static-only`)
+3. Suivre les logs en temps réel
+4. Télécharger le rapport PDF généré
+
+---
+
+## CLI — Commandes
+
+```bash
 # Analyse complète (statique + dynamique + IA + rapport)
 python main.py --apk apks/dvba.apk
 python main.py --apk apks/app-debug.apk
 
-# Sans analyse dynamique (pas de backend nécessaire)
+# Sans analyse dynamique
 python main.py --apk apks/dvba.apk --skip-dynamic
 
-# Analyse statique uniquement (pas de clé API nécessaire)
+# Analyse statique uniquement (pas de clé API requise)
 python main.py --apk apks/dvba.apk --static-only
 
-# Mode démo (aucun outil externe requis — présentation)
+# Mode démo (aucun outil externe requis)
 python main.py --apk apks/dvba.apk --demo
-python main.py --apk apks/app-debug.apk --demo
-
-# Dossiers de sortie personnalisés
-python main.py --apk apks/dvba.apk --output-dir ./decompiled --results-dir ./rapports
 ```
-
-### Flags disponibles
 
 | Flag | Description |
-|---|---|
+|------|-------------|
 | `--apk <chemin>` | Chemin vers l'APK à analyser (**obligatoire**) |
-| `--skip-dynamic` | Ignore l'analyse dynamique |
-| `--static-only` | Statique uniquement (pas d'IA non plus) |
+| `--skip-dynamic` | Ignore les tests dynamiques API |
+| `--static-only` | Analyse statique uniquement (pas d'IA) |
 | `--demo` | Données pré-calculées, aucun outil requis |
-| `--output-dir` | Dossier de décompilation JADX (défaut : `output/`) |
+| `--output-dir` | Dossier décompilation JADX (défaut : `output/`) |
 | `--results-dir` | Dossier des rapports (défaut : `results/`) |
 
-### Ordre de lancement recommandé (analyse complète)
+---
 
-```
-Terminal 1 : backend DVBA       →  docker-compose up --build
-Terminal 2 : backend InsecureBank →  python app.py
-Terminal 3 : émulateur          →  emulator -avd Medium_Phone
-Terminal 4 : analyse            →  python main.py --apk apks/dvba.apk
-```
+## Résultats de l'évaluation (v2.0)
+
+Environnement : Windows 10 Pro, Python 3.13, JADX 1.5.5, 3 répétitions.
+
+| Métrique | InsecureBankv2 | DVBA | Combiné |
+|----------|---------------|------|---------|
+| Findings détectés | 87 | 58 | **145** |
+| Vrais positifs (TP) | 14 | 8 | 22 |
+| Faux positifs (FP, libs tierces) | 28 | 12 | 40 |
+| Précision | 0,33 | 0,40 | **0,36** |
+| Rappel | 0,93 | 0,89 | **0,92** |
+| Score F1 | 0,49 | 0,55 | **0,52** |
+| Temps de scan moyen | 48 ± 3 s | 41 ± 2 s | 44,5 s |
+
+> La précision de 0,36 reflète les faux positifs provenant des bibliothèques tierces (Google GMS, AndroidX). Le rappel élevé (0,92) est la priorité pour un outil d'audit de sécurité.
+
+### Comparaison MobileSec v2.0 vs MobSF v3.9.7
+
+| Critère | MobileSec v2.0 | MobSF 3.9.7 |
+|---------|---------------|-------------|
+| Total findings (2 APKs) | **145** | ≈ 63 |
+| Tests logout serveur | ✓ CRITIQUE détecté | ✗ Non testé |
+| Token JWT sans `exp` | ✓ CRITIQUE détecté | ✗ Non testé |
+| Flags cookies OWASP | ✓ 7 contrôles | ✗ Non |
+| Tests session avancés (MASVS-AUTH) | ✓ 12 tests | ✗ Non |
+| Remédiation guidée par IA | ✓ Checklist 12+ items | ✗ Non |
+| Critères Gherkin par type d'auth | ✓ | ✗ |
+| IDs MASVS couverts | **13/14** | ≈ 5 |
 
 ---
 
-## Modules
+## Scores MASVS
 
-### Module 1 — Analyse statique (`static_analyzer.py`)
+| Score | Niveau | Interprétation |
+|-------|--------|----------------|
+| 0 – 3 | CRITIQUE | Vulnérabilités exploitables immédiatement |
+| 4 – 6 | ÉLEVÉ | Corrections prioritaires requises |
+| 7 – 10 | ACCEPTABLE | Niveau de sécurité satisfaisant |
 
-1. Lance JADX : `jadx -d ./output/<apk> <apk_path>`
-2. Parcourt tous les fichiers `.java` et `.kt` décompilés
-3. Applique des patterns regex par sévérité :
-
-| Sévérité | Pattern détecté | Points perdus |
-|---|---|---|
-| CRITIQUE | JWT codé en dur (`eyJ...`) | -3 |
-| CRITIQUE | Secret/password codé en dur | -3 |
-| ÉLEVÉ | AES/ECB, MD5, SHA-1 | -2 |
-| ÉLEVÉ | Credentials dans les logs | -2 |
-| ÉLEVÉ | Token dans SharedPreferences | -2 |
-| MOYEN | SSL désactivé (TrustAllCerts) | -1 |
-| MOYEN | HTTP en clair | -1 |
-| MOYEN | AndroidManifest : debug=true, exported=true | -1 |
-
-4. Détecte le type d'authentification : `JWT` ou `SESSION_COOKIE`
-5. Calcule le score : `10 - Σ(pénalités)`, plancher à 0
+**Domaines évalués :**
+- `MASVS-AUTH` — Authentification et gestion de session (AUTH-001 à AUTH-008)
+- `MASVS-STORAGE` — Stockage sécurisé des données sensibles
+- `MASVS-CRYPTO` — Algorithmes cryptographiques (MD5, AES/ECB…)
+- `MASVS-NETWORK` — Sécurité des communications réseau
 
 ---
 
-### Module 2 — Analyse dynamique (`dynamic_analyzer.py`)
+## Gestion des erreurs
 
-**DVBA (Mode API_DIRECT) :**
-- Chiffrement des requêtes : XOR répété avec la clé `"amazing"` + Base64
-- Test 1 : Login → capture du JWT
-- Test 2 : Décode le JWT → vérifie la présence du champ `exp`
-- Test 3 : Logout → rejoue le même token → vérifie si le serveur le rejette
-- Test 4 : Falsification du payload JWT (signature invalide)
-- Test 5 : Double utilisation du refresh token
-
-**InsecureBankv2 (Mode API_DIRECT) :**
-- Test 1 : Login via HTTP (credentials en clair)
-- Test 2 : Accès aux ressources sans authentification
-- Test 3 : 10 tentatives de login échouées → vérifie l'absence de rate limiting
-- Test 4 : Absence de mécanisme de logout côté serveur
-
----
-
-### Module 3 — IA Claude (`ai_engine.py`)
-
-- Modèle : `claude-sonnet-4-6`
-- Entrée : résultats combinés statique + dynamique
-- Calcule les scores MASVS par domaine (AUTH, STORAGE, CRYPTO, NETWORK)
-- Génère via prompt structuré :
-  - Checklist de sécurité mappée MASVS (chap. 4, 6, 7, 12, 14)
-  - Critères d'acceptation ("Le système DOIT/NE DOIT PAS...")
-  - Résumé exécutif objectif en français
-
----
-
-### Module 4 — Rapport (`report_generator.py`)
-
-Génère deux fichiers dans `results/` :
-
-**`<apk>_results.json`** — données brutes complètes  
-**`<apk>_report.pdf`** — rapport 6 sections :
-
-| Section | Contenu |
-|---|---|
-| 1. Résumé exécutif | Paragraphe narratif généré par IA |
-| 2. Analyse statique | Tableau : sévérité, type, fichier, détail |
-| 3. Analyse dynamique | Résultats des tests d'API |
-| 4. Scores MASVS | Barres colorées par domaine |
-| 5. Checklist MASVS | Points de contrôle générés par IA |
-| 6. Critères d'acceptation | User stories de sécurité |
+| Module | Erreur possible | Comportement |
+|--------|-----------------|--------------|
+| `static_analyzer` | JADX absent du PATH | Warning + arrêt propre |
+| `dynamic_analyzer` | Backend inaccessible | Warning + skip dynamique |
+| `cookie_scanner` | mitmproxy non lancé | Warning + score = N/A |
+| `storage_scanner` | Décompilation partielle | Analyse des fichiers disponibles |
+| `session_scanner` | Token manquant | Tests marqués N/A |
+| `ai_engine` | Clé API absente | Checklist statique de base |
+| `report_generator` | Chemin invalide | Erreur fatale + message utilisateur |
 
 ---
 
@@ -339,107 +343,61 @@ Génère deux fichiers dans `results/` :
 ```
 ERR JADX introuvable
 ```
-```powershell
-scoop bucket add extras
-scoop install extras/jadx
-# Redémarrer le terminal PowerShell
-jadx --version  # doit afficher 1.5.x
+```bash
+# Windows (Scoop)
+scoop bucket add extras && scoop install extras/jadx
+
+# Linux
+wget https://github.com/skylot/jadx/releases/download/v1.5.5/jadx-1.5.5.zip
+unzip jadx-1.5.5.zip -d /opt/jadx
+export PATH="/opt/jadx/bin:$PATH"
 ```
 
----
+### Backend inaccessible
+```
+!! Backend inaccessible — analyse dynamique ignorée
+```
+- **DVBA** : `docker compose up -d` dans `Damn-Vulnerable-Bank/BackendServer/`
+- **InsecureBankv2** : `python app.py` dans `Android-InsecureBankv2/AndroLabServer/`
+- Tester : `curl http://localhost:3000` / `curl http://localhost:8888`
 
-### Clé API invalide (401)
+### Clé API Claude invalide
 ```
 Erreur IA : Error code: 401 - invalid x-api-key
 ```
-1. Vérifier que `.env` contient `ANTHROPIC_API_KEY=sk-ant-...`
-2. Aller sur https://console.anthropic.com → vérifier que la clé est **Active**
-3. Vérifier le solde de crédits dans **Settings → Billing**
+- Vérifier que `.env` contient `ANTHROPIC_API_KEY=sk-ant-...`
+- Vérifier le solde sur https://console.anthropic.com → Billing
 
----
-
-### Backend inaccessible (analyse dynamique)
+### PDF verrouillé (Windows)
 ```
-!! Deconnexion : non testee (backend inaccessible ?)
+PermissionError: [Errno 13] Permission denied: 'results/dvba_report.pdf'
 ```
-- **DVBA** : s'assurer que `docker-compose up` est lancé et que `localhost:3000` répond
-- **InsecureBankv2** : s'assurer que `python app.py` tourne sur le port 8888
-- Tester manuellement : `curl http://localhost:3000` ou `curl http://localhost:8888`
-
----
-
-### Permission denied sur le PDF
-```
-PermissionError: [Errno 13] Permission denied: 'results\dvba_report.pdf'
-```
-Le fichier PDF est ouvert dans un lecteur (Acrobat, navigateur...). **Fermer le PDF** avant de relancer.
-
----
-
-### app-debug.apk — Invalid Credentials dans l'émulateur
-1. Vérifier que le tunnel ADB est actif : `adb reverse tcp:8888 tcp:8888`
-2. Vérifier que le backend tourne : `python app.py`
-3. Les credentials sont : `dinesh / Dinesh@123$` (simplifié depuis `Dinesh@123$`)
-
----
-
-### ADB/emulator introuvable dans PowerShell
-```powershell
-# Ajouter Android SDK au PATH utilisateur
-$sdk = "$env:LOCALAPPDATA\Android\Sdk"
-[Environment]::SetEnvironmentVariable(
-  "PATH",
-  [Environment]::GetEnvironmentVariable("PATH","User") + ";$sdk\platform-tools;$sdk\emulator",
-  "User"
-)
-# Redémarrer VS Code ou PowerShell
-```
-
----
-
-### JADX produit 0 fichiers
-- Vérifier que l'APK n'est pas corrompu : `jadx -d test/ apks/dvba.apk`
-- Essayer sans l'option `--no-res` (géré automatiquement par le script)
-- Vérifier que Java 11+ est installé : `java --version`
-
----
-
-### InsecureBankv2 backend — SyntaxError Python 2
-Le code source est en Python 2. La conversion Python 3 est déjà appliquée dans ce repo.  
-Si vous reclonez le repo original, appliquer :
-```powershell
-cd Android-InsecureBankv2\AndroLabServer
-python -m lib2to3 -w app.py database.py models.py
-# Puis corriger manuellement les imports relatifs (.models → models)
-```
+Fermer le PDF dans le lecteur avant de relancer.
 
 ---
 
 ## Dépendances Python
 
 ```
-anthropic==0.102.0      # Claude API
-mitmproxy==12.2.3       # Architecture proxy (addon.py)
-requests==2.32.3        # Tests API dynamiques
-fpdf2==2.8.7            # Génération PDF
-python-dotenv==1.2.2    # Chargement .env
-colorama==0.4.6         # Couleurs terminal
+anthropic>=0.21        # Claude API
+mitmproxy>=10.2        # Interception trafic HTTP (cookie scanner)
+requests               # Tests API dynamiques
+fpdf2>=2.7             # Génération PDF
+python-dotenv          # Chargement .env
+colorama               # Couleurs terminal
+PyJWT>=2.8             # Décodage/vérification JWT
+flask                  # Interface web
 ```
-
-Installation : `pip install -r requirements.txt`
 
 ---
 
-## Scores MASVS — Interprétation
+## Licence
 
-| Score | Niveau | Signification |
-|---|---|---|
-| 0 — 3 | 🔴 CRITIQUE | Vulnérabilités critiques exploitables immédiatement |
-| 4 — 6 | 🟠 ÉLEVÉ | Risque significatif, corrections prioritaires |
-| 7 — 10 | 🟢 ACCEPTABLE | Niveau de sécurité satisfaisant |
+MIT License — voir [LICENSE](LICENSE)
 
-Les domaines évalués :
-- **MASVS-AUTH** — Authentification et gestion de session
-- **MASVS-STORAGE** — Stockage des données sensibles
-- **MASVS-CRYPTO** — Algorithmes cryptographiques
-- **MASVS-NETWORK** — Sécurité des communications réseau
+---
+
+## Auteurs
+
+Hafssa Chaoulida, Iliass Chbania, Jihad Dahouasa, Sayf Eddine Laamria, Mohamed Lachgara  
+*Université Cadi Ayyad, École Nationale des Sciences Appliquées, Marrakech, Maroc*
