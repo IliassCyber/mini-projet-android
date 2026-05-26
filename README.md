@@ -399,5 +399,5 @@ MIT License — voir [LICENSE](LICENSE)
 
 ## Auteurs
 
-Hafssa Chaoulida, Iliass Chbania, Jihad Dahouasa, Sayf Eddine Laamria, Mohamed Lachgara  
+Hafssa Chaoulid, Iliass Chbani, Jihad Dahouas, Sayf Eddine Laamri, Mohamed Lachgar  
 *Université Cadi Ayyad, École Nationale des Sciences Appliquées, Marrakech, Maroc*
